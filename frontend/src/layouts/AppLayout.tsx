@@ -1,4 +1,4 @@
-import { CalendarClock, ChevronDown, FileSignature, Home, Layers3, LogOut, Menu, PanelLeftClose, Users, X } from "lucide-react";
+import { CalendarClock, ChevronDown, FileSignature, Home, Layers3, LogOut, Menu, PanelLeftClose, ReceiptText, Users, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -33,7 +33,7 @@ export function AppLayout() {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
-  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : location.pathname.startsWith("/planes") ? "Planes" : location.pathname.startsWith("/contratos") ? "Contratos" : location.pathname.startsWith("/cuotas") ? "Cuotas" : "Inicio";
+  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : location.pathname.startsWith("/planes") ? "Planes" : location.pathname.startsWith("/contratos") ? "Contratos" : location.pathname.startsWith("/cuotas") ? "Cuotas" : location.pathname.startsWith("/pagos") ? "Pagos" : "Inicio";
 
   function handleSignOut() {
     setProfileOpen(false);
@@ -87,6 +87,12 @@ export function AppLayout() {
               <span>Cuotas</span>
             </NavLink>
           )}
+          {user?.permisos.pagos.view_payment && (
+            <NavLink to="/pagos" className={({ isActive }) => `nav-item ${isActive ? "nav-item--active" : ""}`}>
+              <ReceiptText size={19} strokeWidth={1.8} />
+              <span>Pagos</span>
+            </NavLink>
+          )}
         </nav>
 
         <div className="sidebar__footer">
@@ -101,7 +107,7 @@ export function AppLayout() {
           </div>
           <div className="sidebar__foundation">
             <PanelLeftClose size={16} aria-hidden="true" />
-            <span>Cuotas y calendario · Sprint 4</span>
+            <span>Cobros y recibos · Sprint 5</span>
           </div>
         </div>
       </aside>

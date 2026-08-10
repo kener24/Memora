@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useId, type ReactNode } from "react";
 
 interface ModalProps {
   title: string;
@@ -10,6 +10,7 @@ interface ModalProps {
   size?: "small" | "large";
 }
 export function Modal({ title, description, open, onClose, children, size = "large" }: ModalProps) {
+  const titleId = useId();
   useEffect(() => {
     if (!open) return;
     function handleKey(event: KeyboardEvent) {
@@ -26,9 +27,9 @@ export function Modal({ title, description, open, onClose, children, size = "lar
   if (!open) return null;
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className={`modal-dialog modal-dialog--${size}`} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <section className={`modal-dialog modal-dialog--${size}`} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <header className="modal-dialog__header">
-          <div><h2 id="modal-title">{title}</h2>{description && <p>{description}</p>}</div>
+          <div><h2 id={titleId}>{title}</h2>{description && <p>{description}</p>}</div>
           <button type="button" className="icon-button" onClick={onClose} aria-label="Cerrar"><X size={20} /></button>
         </header>
         <div className="modal-dialog__body">{children}</div>

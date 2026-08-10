@@ -1,6 +1,6 @@
 import {
   Activity, ArrowLeft, Building2, CheckCircle2, Clock3, Edit3, HeartHandshake,
-  History, MapPin, Phone, Plus, Star, UserRound, UsersRound,
+  History, MapPin, Phone, Plus, Star, UserRound, UsersRound, WalletCards,
 } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -14,7 +14,7 @@ import { useToast } from "../contexts/ToastContext";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { changeCustomerStatus, getCustomer, getCustomerOptions, updateBeneficiary, updateContact } from "../services/customerService";
 import type { Beneficiary, CustomerContact, CustomerDetail, CustomerModuleOptions } from "../types/customer";
-import { displayValue, formatDate, formatDateTime } from "../utils/format";
+import { displayValue, formatCurrency, formatDate, formatDateTime } from "../utils/format";
 
 type DetailTab = "summary" | "beneficiaries" | "contacts" | "history";
 type StatusTarget = { kind: "customer" | "beneficiary" | "contact"; id: number; name: string; active: boolean };
@@ -119,6 +119,11 @@ export function CustomerDetailPage() {
       <nav className="detail-tabs" aria-label="Secciones del cliente">{tabs.map((item) => <button key={item.id} type="button" className={tab === item.id ? "detail-tab--active" : ""} onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}>{item.label}{item.count !== undefined && <span>{item.count}</span>}</button>)}</nav>
 
       {tab === "summary" && <div className="summary-layout">
+        {user?.permisos.pagos.view_payment && <InfoCard title="Resumen financiero" icon={<WalletCards size={19} />} wide><InfoGrid items={[
+          ["Contratos activos", String(customer.financial_summary.active_contracts)],
+          ["Saldo total pendiente", formatCurrency(customer.financial_summary.total_balance)],
+          ["Último pago", customer.financial_summary.last_payment ? `${formatCurrency(customer.financial_summary.last_payment.amount)} · ${formatDateTime(customer.financial_summary.last_payment.payment_date)}` : "Sin pagos confirmados"],
+        ]} /></InfoCard>}
         <InfoCard title="Información personal" icon={<UserRound size={19} />}><InfoGrid items={[
           ["Nombre completo", customer.full_name], ["Identidad", customer.identity_number], ["Nacimiento", customer.birth_date ? formatDate(customer.birth_date) : null],
           ["Sexo", customer.gender_label], ["Estado civil", customer.marital_status_label], ["Ocupación", customer.occupation],

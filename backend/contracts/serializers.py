@@ -94,6 +94,7 @@ class ContractDetailSerializer(ContractListSerializer):
     payment_frequency_label = serializers.CharField(source="get_payment_frequency_display", read_only=True)
     plan_items = ContractPlanItemSerializer(many=True, read_only=True)
     activities = ContractActivitySerializer(many=True, read_only=True)
+    financial_summary = serializers.SerializerMethodField()
 
     class Meta(ContractListSerializer.Meta):
         fields = ContractListSerializer.Meta.fields + (
@@ -103,8 +104,13 @@ class ContractDetailSerializer(ContractListSerializer):
             "beneficiary_name_snapshot", "beneficiary_identity_snapshot", "beneficiary_relationship_snapshot",
             "subtotal", "discount", "initial_payment_agreed", "financed_amount", "payment_frequency",
             "payment_frequency_label", "installment_amount", "first_due_date", "notes", "cancelled_at",
-            "cancelled_by", "cancellation_reason", "created_by", "plan_items", "activities",
+            "cancelled_by", "cancellation_reason", "created_by", "financial_summary", "plan_items", "activities",
         )
+
+    def get_financial_summary(self, obj):
+        from payments.services import financial_summary
+
+        return financial_summary(obj)
 
     def get_organization(self, obj):
         return {"id": obj.organization_id, "name": obj.organization.name}

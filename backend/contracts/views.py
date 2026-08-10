@@ -235,6 +235,12 @@ class ContractViewSet(
             contract = scope_contracts(self.get_queryset(), request.user).select_for_update().get(pk=contract.pk)
             if contract.status != ContractStatus.ACTIVE:
                 raise ConflictError("El contrato ya no está activo.")
+            from payments.services import financial_summary
+
+            if financial_summary(contract)["total_paid"] > 0:
+                raise ConflictError(
+                    "El contrato tiene pagos registrados y no puede cancelarse mediante el flujo simple."
+                )
             contract.status = ContractStatus.CANCELLED
             contract.cancelled_at = timezone.now()
             contract.cancelled_by = request.user

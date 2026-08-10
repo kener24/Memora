@@ -156,6 +156,14 @@ class ContractIdempotencyKey(models.Model):
     key = models.CharField(max_length=128)
     operation = models.CharField(max_length=20, choices=IdempotencyOperation.choices)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name="idempotency_keys")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True,
+        related_name="idempotency_records",
+    )
+    payload_hash = models.CharField(max_length=64, blank=True)
+    resource_type = models.CharField(max_length=30, default="contract")
+    resource_id = models.PositiveBigIntegerField(blank=True, null=True)
+    response_status = models.PositiveSmallIntegerField(default=200)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

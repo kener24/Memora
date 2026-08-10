@@ -1,6 +1,6 @@
 # Memora
 
-Memora es una plataforma web para la gestión integral de empresas funerarias. Incluye autenticación segura, clientes y beneficiarios, catálogo de planes, venta contractual y un motor versionado de cuotas con calendarios y PDF. Los pagos reales y la operación funeraria pertenecen a sprints posteriores.
+Memora es una plataforma web para la gestión integral de empresas funerarias. Incluye autenticación segura, clientes y beneficiarios, catálogo de planes, venta contractual, cuotas versionadas y cobros reales con aplicación de abonos, recibos y PDF.
 
 ## Arquitectura
 
@@ -13,6 +13,7 @@ Memora/
 │   ├── plans/               Planes, prestaciones, disponibilidad e historial
 │   ├── contracts/           Contratos, ventas, snapshots, auditoría y PDF
 │   ├── installments/        Cuotas, calendarios, reprogramación y plan de pagos
+│   ├── payments/            Pagos, aplicaciones, recibos, anulación y PDF
 │   ├── core/                Modelos base, respuestas y errores comunes
 │   └── memora/              Configuración y rutas del proyecto
 └── frontend/                React + TypeScript + Vite
@@ -141,8 +142,17 @@ La aplicación estará disponible en `http://localhost:5173`. `VITE_API_BASE_URL
 | `POST` | `/api/contracts/{id}/installment-schedule/preview/` | Admin, manager | Calcula una vista previa sin persistir datos. |
 | `POST` | `/api/contracts/{id}/installment-schedule/reprogram/` | Admin, manager | Reemplaza el calendario activo conservando la versión anterior. |
 | `GET` | `/api/contracts/{id}/installment-schedule/pdf/` | Lectura | Descarga el plan histórico de pagos en PDF. |
+| `GET/POST` | `/api/payments/` | Según rol | Busca, filtra y pagina pagos, o registra dinero con idempotencia. |
+| `GET` | `/api/payments/{id}/` | Según alcance | Consulta el pago, sus aplicaciones y el recibo histórico. |
+| `POST` | `/api/payments/{id}/void/` | Admin, manager | Anula con motivo y reconstruye determinísticamente las aplicaciones. |
+| `GET` | `/api/payments/{id}/receipt/` | Lectura | Obtiene el snapshot del recibo emitido. |
+| `GET` | `/api/payments/{id}/receipt/pdf/` | Lectura | Descarga el recibo imprimible, también si está anulado. |
+| `GET` | `/api/payments/options/` | Lectura | Entrega métodos, tipos, estados, filtros y permisos. |
+| `GET` | `/api/contracts/{id}/payments/` | Lectura | Obtiene resumen financiero e historial del contrato. |
+| `POST` | `/api/contracts/{id}/payments/preview/` | Roles de cobro | Calcula la aplicación del abono sin guardar cambios. |
+| `POST` | `/api/contracts/{id}/settle/` | Admin, manager | Liquida exactamente el saldo vigente con control de concurrencia. |
 
-Las operaciones de creación y confirmación requieren el encabezado `Idempotency-Key`. Repetir una solicitud con la misma clave recupera el mismo resultado sin duplicar ventas.
+Las operaciones de creación, confirmación y cobro requieren el encabezado `Idempotency-Key`. Repetir una solicitud idéntica recupera el mismo resultado; reutilizar la clave con otra carga produce conflicto.
 
 ### Permisos de contratos
 
@@ -181,6 +191,26 @@ Las operaciones de creación y confirmación requieren el encabezado `Idempotenc
 - `superadmin` tiene alcance global; `admin` y `manager` gestionan calendarios dentro de su organización.
 - `seller`, `collector`, `cashier` y `accountant` poseen lectura según las reglas de sucursal/organización existentes.
 - `inventory` no tiene acceso al módulo. El backend aplica aislamiento por organización, sucursal y contrato en cada endpoint y PDF.
+
+### Decisiones del módulo de pagos
+
+- `Payment` representa dinero realmente recibido; `PaymentApplication` explica cuánto se aplicó a cada cuota y `Receipt` congela el comprobante histórico.
+- Los números `PAG-000001` y `REC-000001` usan secuencias transaccionales independientes por organización.
+- Prima, monto financiado, cuotas y saldo directo se mantienen separados. El total pagado solo suma pagos confirmados y el saldo contractual nunca puede ser negativo.
+- Los abonos se distribuyen de la obligación más antigua a la más reciente, incluyendo cuotas futuras. La liquidación exige exactamente el saldo vigente.
+- Registro, aplicaciones, estados de cuota, recibo, actividad e idempotencia se guardan en una transacción con bloqueo del contrato.
+- Los pagos confirmados son inmutables y no se eliminan. La anulación conserva pago y recibo, marca ambos como anulados y reconstruye todos los abonos por fecha de pago, creación e ID.
+- El recibo conserva organización, cliente, contrato, concepto, método, receptor, saldos y aplicaciones tal como existían al emitirse.
+- Registrar dinero bloquea la cancelación simple del contrato y la reprogramación del calendario; cualquier ajuste posterior requiere un proceso financiero controlado.
+
+### Permisos de pagos
+
+- `superadmin` tiene alcance global y todas las operaciones.
+- `admin` y `manager` consultan, cobran, registran prima, liquidan, retrofechan y anulan dentro de su organización.
+- `cashier` cobra, registra prima y consulta recibos dentro de su sucursal, sin anular ni retrofechar.
+- `collector` cobra cuotas y adelantos dentro de su sucursal, sin prima, liquidación, anulación ni retrofecha.
+- `seller` solo consulta pagos dentro de su sucursal. `accountant` consulta a nivel organizacional. `inventory` no tiene acceso.
+- Todos los endpoints, recibos y PDFs aplican alcance de organización, sucursal y contrato en backend.
 
 ### Permisos de clientes
 

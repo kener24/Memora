@@ -44,6 +44,14 @@ export interface ContractDetail extends ContractListItem {
   notes: string; cancelled_at: string | null; cancelled_by: { id: number; name: string } | null;
   cancellation_reason: string; created_by: { id: number; name: string };
   plan_items: ContractPlanItem[]; activities: ContractActivity[];
+  financial_summary: FinancialSummary;
+}
+
+export interface FinancialSummary {
+  total_price: string; total_paid: string; contract_balance: string;
+  financial_status: string; financial_status_label: string;
+  initial_payment_agreed: string; initial_payment_paid: string; initial_payment_pending: string;
+  financed_amount: string; financed_paid: string; financed_pending: string; direct_paid: string;
 }
 
 export interface ContractDraftPayload {

@@ -150,6 +150,10 @@ export interface CustomerDetail extends Omit<CustomerPayload, "organization" | "
   beneficiaries: Beneficiary[];
   contacts: CustomerContact[];
   activities: CustomerActivity[];
+  financial_summary: {
+    active_contracts: number; total_balance: string;
+    last_payment: { id: number; payment_number: string; amount: string; payment_date: string } | null;
+  };
 }
 
 export interface DuplicateMatch {

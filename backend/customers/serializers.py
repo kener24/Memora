@@ -259,6 +259,7 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
     beneficiaries = BeneficiarySerializer(many=True, read_only=True)
     contacts = CustomerContactSerializer(many=True, read_only=True)
     activities = CustomerActivitySerializer(many=True, read_only=True)
+    financial_summary = serializers.SerializerMethodField()
 
     class Meta:
         model = Customer
@@ -267,8 +268,13 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
             "identity_number", "birth_date", "gender", "gender_label", "marital_status", "marital_status_label",
             "phone", "secondary_phone", "email", "address", "city", "department", "department_label", "country",
             "occupation", "notes", "organization", "branch", "is_active", "created_by", "created_at", "updated_at",
-            "beneficiaries", "contacts", "activities",
+            "beneficiaries", "contacts", "activities", "financial_summary",
         )
+
+    def get_financial_summary(self, obj):
+        from payments.services import customer_financial_summary
+
+        return customer_financial_summary(obj)
 
     def get_organization(self, obj):
         return {"id": obj.organization_id, "name": obj.organization.name}

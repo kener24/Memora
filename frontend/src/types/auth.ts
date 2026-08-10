@@ -22,6 +22,18 @@ export interface BasicPermissions {
   planes: PlanModulePermissions;
   contratos: ContractModulePermissions;
   cuotas: InstallmentModulePermissions;
+  pagos: PaymentModulePermissions;
+}
+
+export interface PaymentModulePermissions {
+  view_payment: boolean;
+  create_payment: boolean;
+  void_payment: boolean;
+  register_initial_payment: boolean;
+  settle_contract: boolean;
+  view_receipt: boolean;
+  backdate_payment: boolean;
+  global_access: boolean;
 }
 
 export interface InstallmentModulePermissions {

@@ -33,7 +33,7 @@ export function InstallmentsPage() {
   const update = (field: string, value: string | number) => setFilters((current) => ({ ...current, [field]: value, page: field === "page" ? Number(value) : 1 }));
 
   return <div className="module-page installments-page">
-    <header className="module-heading"><div><p className="section-kicker">Cartera programada</p><h2>Cuotas</h2><p>Obligaciones contractuales pendientes. Los pagos y recibos se registrarán en un sprint posterior.</p></div></header>
+    <header className="module-heading"><div><p className="section-kicker">Cartera programada</p><h2>Cuotas</h2><p>Obligaciones contractuales actualizadas con cada pago confirmado.</p></div></header>
     <section className="installment-metrics">
       <article><span><CalendarClock size={19} /></span><div><small>Vencen hoy</small><strong>{summary?.due_today ?? "—"}</strong></div></article>
       <article className="metric-overdue"><span><Clock3 size={19} /></span><div><small>Vencidas</small><strong>{summary?.overdue ?? "—"}</strong></div></article>

@@ -222,6 +222,10 @@ def reprogram_schedule(contract, user, *, frequency, installment_amount=None, fi
     ).first()
     if not previous:
         raise ValidationError({"schedule": "Este contrato todavía no posee un calendario activo."})
+    if contract.payments.filter(status="confirmed").exists():
+        raise ValidationError({
+            "schedule": "Este contrato ya tiene pagos registrados y requiere un ajuste financiero controlado."
+        })
     if previous.installments.filter(paid_amount__gt=0).exists():
         raise ValidationError({"schedule": "No se puede reprogramar un calendario con pagos aplicados."})
     preview = build_preview(
