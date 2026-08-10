@@ -9,6 +9,10 @@ import { CustomerFormPage } from "./pages/CustomerFormPage";
 import { CustomersPage } from "./pages/CustomersPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { PlanDetailPage } from "./pages/PlanDetailPage";
+import { PlanFormPage } from "./pages/PlanFormPage";
+import { PlansPage } from "./pages/PlansPage";
+import { ServicesPage } from "./pages/ServicesPage";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { PublicOnlyRoute } from "./routes/PublicOnlyRoute";
 
@@ -28,6 +32,11 @@ export default function App() {
                 <Route path="clientes/nuevo" element={<CustomerFormPage />} />
                 <Route path="clientes/:id" element={<CustomerDetailPage />} />
                 <Route path="clientes/:id/editar" element={<CustomerFormPage />} />
+                <Route path="planes" element={<PlansPage />} />
+                <Route path="planes/nuevo" element={<PlanFormPage />} />
+                <Route path="planes/servicios" element={<ServicesPage />} />
+                <Route path="planes/:id" element={<PlanDetailPage />} />
+                <Route path="planes/:id/editar" element={<PlanFormPage />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />

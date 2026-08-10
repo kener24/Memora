@@ -1,4 +1,4 @@
-import { ChevronDown, Home, LogOut, Menu, PanelLeftClose, Users, X } from "lucide-react";
+import { ChevronDown, Home, Layers3, LogOut, Menu, PanelLeftClose, Users, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -33,7 +33,7 @@ export function AppLayout() {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
-  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : "Inicio";
+  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : location.pathname.startsWith("/planes") ? "Planes" : "Inicio";
 
   function handleSignOut() {
     setProfileOpen(false);
@@ -69,6 +69,12 @@ export function AppLayout() {
               <span>Clientes</span>
             </NavLink>
           )}
+          {user?.permisos.planes.view && (
+            <NavLink to="/planes" className={({ isActive }) => `nav-item ${isActive ? "nav-item--active" : ""}`}>
+              <Layers3 size={19} strokeWidth={1.8} />
+              <span>Planes</span>
+            </NavLink>
+          )}
         </nav>
 
         <div className="sidebar__footer">
@@ -83,7 +89,7 @@ export function AppLayout() {
           </div>
           <div className="sidebar__foundation">
             <PanelLeftClose size={16} aria-hidden="true" />
-            <span>Clientes y beneficiarios · Sprint 1</span>
+            <span>Planes y catálogo · Sprint 2</span>
           </div>
         </div>
       </aside>

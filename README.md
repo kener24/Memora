@@ -1,6 +1,6 @@
 # Memora
 
-Memora es una plataforma web para la gestión integral de empresas funerarias. El proyecto incluye la fundación técnica segura y el módulo completo de clientes, beneficiarios y contactos de referencia. Otros módulos operativos se incorporarán en sprints posteriores con datos y reglas reales.
+Memora es una plataforma web para la gestión integral de empresas funerarias. Incluye la fundación técnica segura, clientes y beneficiarios, además del catálogo comercial completo de planes funerarios y prestaciones. Los módulos contractuales y operativos se incorporarán en sprints posteriores con datos y reglas reales.
 
 ## Arquitectura
 
@@ -10,6 +10,7 @@ Memora/
 │   ├── accounts/            Usuario, roles y autenticación JWT
 │   ├── organizations/       Organizaciones y sucursales
 │   ├── customers/           Clientes, beneficiarios, contactos e historial
+│   ├── plans/               Planes, prestaciones, disponibilidad e historial
 │   ├── core/                Modelos base, respuestas y errores comunes
 │   └── memora/              Configuración y rutas del proyecto
 └── frontend/                React + TypeScript + Vite
@@ -19,7 +20,7 @@ Memora/
         ├── contexts/        Estado de autenticación
         ├── hooks/           Hooks reutilizables
         ├── layouts/         Layout privado responsive
-        ├── pages/           Login, dashboard y gestión de clientes
+        ├── pages/           Login, clientes, planes y catálogo de servicios
         ├── routes/          Protección de rutas
         ├── services/        Operaciones de autenticación
         ├── types/           Contratos TypeScript
@@ -72,7 +73,7 @@ El backend estará disponible en `http://127.0.0.1:8000` y Django Admin en `http
 
 ## Datos locales opcionales
 
-El comando `seed_dev` crea una organización, una sucursal, un administrador y dos clientes mínimos: uno activo con beneficiario/contacto y otro inactivo. La contraseña siempre debe proporcionarla quien ejecuta el comando y no está almacenada en el repositorio:
+El comando `seed_dev` crea una organización, una sucursal, un administrador, dos clientes mínimos, un catálogo de prestaciones y un plan de demostración. La contraseña siempre debe proporcionarla quien ejecuta el comando y no está almacenada en el repositorio:
 
 ```powershell
 $env:SEED_ADMIN_PASSWORD = "elija-una-contraseña-local-segura"
@@ -114,6 +115,16 @@ La aplicación estará disponible en `http://localhost:5173`. `VITE_API_BASE_URL
 | `PATCH` | `/api/customers/{id}/beneficiaries/{id}/` | Según rol | Edita o activa/inactiva un beneficiario. |
 | `GET/POST` | `/api/customers/{id}/contacts/` | Según rol | Lista o agrega contactos de referencia. |
 | `PATCH` | `/api/customers/{id}/contacts/{id}/` | Según rol | Edita, activa/inactiva o selecciona el contacto principal. |
+| `GET/POST` | `/api/plans/` | Según rol | Lista o crea planes con prestaciones y disponibilidad en una transacción. |
+| `GET/PATCH` | `/api/plans/{id}/` | Según rol | Consulta o actualiza el detalle completo de un plan. |
+| `POST` | `/api/plans/{id}/activate/` | Admin | Reactiva el plan. |
+| `POST` | `/api/plans/{id}/deactivate/` | Admin | Inactiva el plan sin eliminar su configuración. |
+| `POST` | `/api/plans/{id}/duplicate/` | Admin, manager | Duplica configuración, prestaciones y sucursales atómicamente. |
+| `GET` | `/api/plans/options/` | Lectura | Entrega categorías, unidades, sucursales y permisos. |
+| `GET/POST` | `/api/plans/services/` | Según rol | Consulta o agrega prestaciones al catálogo. |
+| `GET/PATCH` | `/api/plans/services/{id}/` | Según rol | Consulta o edita una prestación. |
+| `POST` | `/api/plans/services/{id}/activate/` | Admin | Reactiva una prestación. |
+| `POST` | `/api/plans/services/{id}/deactivate/` | Admin | Inactiva una prestación sin retirarla de planes existentes. |
 
 ### Permisos de clientes
 
@@ -126,6 +137,29 @@ La aplicación estará disponible en `http://localhost:5173`. `VITE_API_BASE_URL
 - `inventory`: sin acceso al módulo.
 
 Los permisos, el aislamiento por organización y el alcance de sucursal se validan en backend. Cambiar IDs o campos ocultos en el frontend no amplía el acceso.
+
+### Permisos de planes
+
+- `superadmin`: acceso global, incluyendo costos y administración.
+- `admin`: gestión completa dentro de su organización, estados y costos.
+- `manager`: lectura, creación, edición, duplicación, catálogo y costos dentro de su organización.
+- `seller`: solo planes activos disponibles en su sucursal; nunca recibe costos ni márgenes.
+- `collector`, `cashier` e `inventory`: lectura de planes activos disponibles en su sucursal, sin costos.
+- `accountant`: lectura organizacional incluyendo costos y márgenes, sin modificación.
+
+La protección de costos ocurre al serializar la respuesta del backend. Los campos sensibles no se envían al navegador de usuarios sin permiso.
+
+### Decisiones del módulo de planes
+
+- `FuneralServiceItem` representa una prestación comercial, no inventario ni un servicio funerario ejecutado.
+- `FuneralPlanItem` normaliza cantidad, notas y orden; no se almacenan prestaciones como texto libre.
+- Los códigos `PLA-000001` se asignan mediante secuencia transaccional por organización, sin conteos.
+- Un plan puede estar disponible en todas las sucursales o utilizar `PlanBranchAvailability`; las asociaciones cruzadas se rechazan.
+- Costo, margen y porcentaje son estimaciones calculadas desde los servicios y nunca utilidad contable real.
+- Un servicio inactivo permanece en planes existentes, pero no puede agregarse a configuraciones nuevas.
+- Duplicar un plan copia prestaciones y disponibilidad dentro de `transaction.atomic`, con código e historial nuevos.
+- Los planes y servicios no se eliminan desde la API; se activan o inactivan.
+- Un contrato futuro deberá guardar un snapshot comercial del plan para que cambios de catálogo no alteren contratos históricos.
 
 ### Decisiones del módulo
 

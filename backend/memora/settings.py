@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "accounts",
     "organizations",
     "customers",
+    "plans",
     "core",
 ]
 

@@ -19,6 +19,18 @@ export interface BasicPermissions {
   es_superusuario: boolean;
   acceso_admin: boolean;
   clientes: CustomerModulePermissions;
+  planes: PlanModulePermissions;
+}
+
+export interface PlanModulePermissions {
+  view: boolean;
+  create: boolean;
+  edit: boolean;
+  change_status: boolean;
+  duplicate: boolean;
+  manage_services: boolean;
+  view_costs: boolean;
+  global_access: boolean;
 }
 
 export interface CustomerModulePermissions {

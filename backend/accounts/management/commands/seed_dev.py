@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
@@ -9,6 +10,9 @@ from customers.choices import ActivityAction, Relationship
 from customers.models import Beneficiary, Customer, CustomerContact
 from customers.services import allocate_customer_code, record_activity
 from organizations.models import Branch, Organization
+from plans.choices import PlanActivityAction
+from plans.models import FuneralPlan, FuneralPlanItem, FuneralServiceItem
+from plans.services import allocate_plan_code, record_plan_activity
 
 
 class Command(BaseCommand):
@@ -123,3 +127,51 @@ class Command(BaseCommand):
             record_activity(inactive_customer, user, ActivityAction.CREATED)
 
         self.stdout.write(self.style.SUCCESS("Datos mínimos de clientes creados o verificados."))
+
+        service_definitions = (
+            ("ATA-EST", "Ataúd estándar", "casket", "unit", "8500.00", "11000.00"),
+            ("PRE-BAS", "Preparación básica", "preparation", "service", "1800.00", "2800.00"),
+            ("SAL-VEL", "Sala velatoria", "wake", "day", "1200.00", "2200.00"),
+            ("TRA-LOC", "Traslado local", "transport", "service", "800.00", "1400.00"),
+            ("SIL-UNI", "Sillas para ceremonia", "furniture", "quantity", "18.00", "30.00"),
+        )
+        catalog = {}
+        for code, name, category, unit, cost, price in service_definitions:
+            service, _ = FuneralServiceItem.objects.get_or_create(
+                organization=organization,
+                code=code,
+                defaults={
+                    "name": name,
+                    "category": category,
+                    "unit": unit,
+                    "estimated_cost": Decimal(cost),
+                    "default_sale_price": Decimal(price),
+                    "created_by": user,
+                },
+            )
+            catalog[code] = service
+
+        plan = FuneralPlan.objects.filter(organization=organization, name="Plan Protección Familiar").first()
+        if not plan:
+            plan = FuneralPlan.objects.create(
+                organization=organization,
+                code=allocate_plan_code(organization),
+                name="Plan Protección Familiar",
+                description="Cobertura comercial con prestaciones esenciales para una familia.",
+                base_price=Decimal("25000.00"),
+                initial_payment=Decimal("5000.00"),
+                allow_financing=True,
+                available_all_branches=True,
+                created_by=user,
+            )
+            record_plan_activity(plan, user, PlanActivityAction.CREATED)
+
+        item_definitions = (("ATA-EST", "1.00"), ("PRE-BAS", "1.00"), ("SAL-VEL", "2.00"), ("TRA-LOC", "1.00"), ("SIL-UNI", "50.00"))
+        for order, (code, quantity) in enumerate(item_definitions):
+            FuneralPlanItem.objects.get_or_create(
+                plan=plan,
+                service=catalog[code],
+                defaults={"quantity": Decimal(quantity), "sort_order": order},
+            )
+
+        self.stdout.write(self.style.SUCCESS("Catálogo y plan funerario de demostración creados o verificados."))

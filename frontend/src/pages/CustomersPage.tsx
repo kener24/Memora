@@ -1,9 +1,10 @@
-import { ChevronLeft, ChevronRight, Eye, Filter, Plus, Search, SlidersHorizontal, UserRound, Users, X } from "lucide-react";
+import { ChevronRight, Eye, Filter, Plus, Search, SlidersHorizontal, UserRound, Users, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { ApiError } from "../api/client";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { Pagination } from "../components/Pagination";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
@@ -172,7 +173,7 @@ export function CustomersPage() {
             ))}</div>
           </>
         )}
-        {!loading && data.count > 0 && <footer className="pagination"><span>Página {data.page} de {data.total_pages}</span><div><button type="button" disabled={!data.previous} onClick={() => setFilter("page", String(data.page - 1))}><ChevronLeft size={16} /> Anterior</button><button type="button" disabled={!data.next} onClick={() => setFilter("page", String(data.page + 1))}>Siguiente <ChevronRight size={16} /></button></div></footer>}
+        {!loading && data.count > 0 && <Pagination page={data.page} totalPages={data.total_pages} hasNext={Boolean(data.next)} hasPrevious={Boolean(data.previous)} onChange={(page) => setFilter("page", String(page))} />}
       </section>
 
       <ConfirmModal
