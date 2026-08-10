@@ -2,6 +2,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
 
@@ -26,6 +27,7 @@ if not SECRET_KEY:
 DEBUG = env_bool("DEBUG", False)
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
 CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", "http://localhost:5173")
+CORS_ALLOW_HEADERS = (*default_headers, "idempotency-key")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     "organizations",
     "customers",
     "plans",
+    "contracts",
     "core",
 ]
 

@@ -98,3 +98,23 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   return payload.data;
 }
 
+export async function apiBlobRequest(path: string, options: RequestOptions = {}): Promise<Blob> {
+  const { authenticated = true, retryOnUnauthorized = true, headers: providedHeaders, ...requestOptions } = options;
+  const headers = new Headers(providedHeaders);
+  headers.set("Accept", "*/*");
+  if (authenticated) {
+    let access = tokenStore.getAccess();
+    if (!access && tokenStore.getRefresh()) access = await refreshAccessToken();
+    if (access) headers.set("Authorization", `Bearer ${access}`);
+  }
+  const response = await fetch(endpointUrl(path), { ...requestOptions, headers });
+  if (response.status === 401 && authenticated && retryOnUnauthorized && tokenStore.getRefresh()) {
+    await refreshAccessToken();
+    return apiBlobRequest(path, { ...options, retryOnUnauthorized: false });
+  }
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as ApiFailure | null;
+    throw new ApiError(payload?.message ?? "No fue posible descargar el documento.", response.status, payload?.errors ?? {});
+  }
+  return response.blob();
+}

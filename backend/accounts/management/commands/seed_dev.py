@@ -1,14 +1,19 @@
 import os
+from datetime import timedelta
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils import timezone
 
 from accounts.models import Role, RoleCode
 from customers.choices import ActivityAction, Relationship
 from customers.models import Beneficiary, Customer, CustomerContact
 from customers.services import allocate_customer_code, record_activity
+from contracts.choices import ContractActivityAction, ContractStatus, PaymentFrequency
+from contracts.models import Contract
+from contracts.services import allocate_contract_number, record_contract_activity, snapshot_contract
 from organizations.models import Branch, Organization
 from plans.choices import PlanActivityAction
 from plans.models import FuneralPlan, FuneralPlanItem, FuneralServiceItem
@@ -175,3 +180,46 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(self.style.SUCCESS("Catálogo y plan funerario de demostración creados o verificados."))
+
+        contract = Contract.objects.filter(
+            organization=organization, customer=active_customer, plan=plan,
+        ).exclude(status=ContractStatus.DRAFT).first()
+        if not contract:
+            total = plan.base_price
+            initial = Decimal("5000.00")
+            contract = Contract.objects.create(
+                organization=organization,
+                branch=branch,
+                contract_number=allocate_contract_number(organization),
+                customer=active_customer,
+                beneficiary=active_customer.beneficiaries.filter(is_active=True, is_customer=False).first(),
+                plan=plan,
+                seller=user,
+                status=ContractStatus.ACTIVE,
+                sale_date=timezone.localdate(),
+                start_date=timezone.localdate(),
+                subtotal=plan.base_price,
+                discount=Decimal("0.00"),
+                total_price=total,
+                allow_financing=True,
+                initial_payment_agreed=initial,
+                financed_amount=total - initial,
+                payment_frequency=PaymentFrequency.MONTHLY,
+                installment_amount=Decimal("2000.00"),
+                first_due_date=timezone.localdate() + timedelta(days=30),
+                notes="Contrato demostrativo generado por seed_dev.",
+                created_by=user,
+            )
+            snapshot_contract(contract)
+            contract.save(update_fields=(
+                "plan_name_snapshot", "plan_description_snapshot", "customer_name_snapshot",
+                "customer_identity_snapshot", "customer_address_snapshot", "customer_phone_snapshot",
+                "beneficiary_name_snapshot", "beneficiary_identity_snapshot",
+                "beneficiary_relationship_snapshot", "updated_at",
+            ))
+            record_contract_activity(
+                contract, user, ContractActivityAction.CONFIRMED,
+                "Contrato demostrativo confirmado con snapshot histórico.",
+            )
+
+        self.stdout.write(self.style.SUCCESS("Contrato activo de demostración creado o verificado."))

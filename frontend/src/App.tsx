@@ -7,6 +7,9 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { CustomerDetailPage } from "./pages/CustomerDetailPage";
 import { CustomerFormPage } from "./pages/CustomerFormPage";
 import { CustomersPage } from "./pages/CustomersPage";
+import { ContractDetailPage } from "./pages/ContractDetailPage";
+import { ContractsPage } from "./pages/ContractsPage";
+import { ContractWizardPage } from "./pages/ContractWizardPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PlanDetailPage } from "./pages/PlanDetailPage";
@@ -37,6 +40,9 @@ export default function App() {
                 <Route path="planes/servicios" element={<ServicesPage />} />
                 <Route path="planes/:id" element={<PlanDetailPage />} />
                 <Route path="planes/:id/editar" element={<PlanFormPage />} />
+                <Route path="contratos" element={<ContractsPage />} />
+                <Route path="contratos/nuevo" element={<ContractWizardPage />} />
+                <Route path="contratos/:id" element={<ContractDetailPage />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />

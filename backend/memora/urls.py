@@ -7,6 +7,7 @@ urlpatterns = [
     path("api/auth/", include("accounts.urls")),
     path("api/", include("customers.urls")),
     path("api/plans/", include("plans.urls")),
+    path("api/", include("contracts.urls")),
 ]
 
 admin.site.site_header = "Administración de Memora"

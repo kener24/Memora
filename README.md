@@ -1,6 +1,6 @@
 # Memora
 
-Memora es una plataforma web para la gestión integral de empresas funerarias. Incluye la fundación técnica segura, clientes y beneficiarios, además del catálogo comercial completo de planes funerarios y prestaciones. Los módulos contractuales y operativos se incorporarán en sprints posteriores con datos y reglas reales.
+Memora es una plataforma web para la gestión integral de empresas funerarias. Incluye autenticación segura, clientes y beneficiarios, catálogo de planes y la venta contractual completa con snapshots históricos y PDF profesional. Los pagos reales y la operación funeraria pertenecen a sprints posteriores.
 
 ## Arquitectura
 
@@ -11,6 +11,7 @@ Memora/
 │   ├── organizations/       Organizaciones y sucursales
 │   ├── customers/           Clientes, beneficiarios, contactos e historial
 │   ├── plans/               Planes, prestaciones, disponibilidad e historial
+│   ├── contracts/           Contratos, ventas, snapshots, auditoría y PDF
 │   ├── core/                Modelos base, respuestas y errores comunes
 │   └── memora/              Configuración y rutas del proyecto
 └── frontend/                React + TypeScript + Vite
@@ -73,7 +74,7 @@ El backend estará disponible en `http://127.0.0.1:8000` y Django Admin en `http
 
 ## Datos locales opcionales
 
-El comando `seed_dev` crea una organización, una sucursal, un administrador, dos clientes mínimos, un catálogo de prestaciones y un plan de demostración. La contraseña siempre debe proporcionarla quien ejecuta el comando y no está almacenada en el repositorio:
+El comando `seed_dev` crea una organización, una sucursal, un administrador, dos clientes, beneficiarios, un catálogo, un plan y un contrato activo de demostración. La contraseña siempre debe proporcionarla quien ejecuta el comando y no está almacenada en el repositorio:
 
 ```powershell
 $env:SEED_ADMIN_PASSWORD = "elija-una-contraseña-local-segura"
@@ -125,6 +126,32 @@ La aplicación estará disponible en `http://localhost:5173`. `VITE_API_BASE_URL
 | `GET/PATCH` | `/api/plans/services/{id}/` | Según rol | Consulta o edita una prestación. |
 | `POST` | `/api/plans/services/{id}/activate/` | Admin | Reactiva una prestación. |
 | `POST` | `/api/plans/services/{id}/deactivate/` | Admin | Inactiva una prestación sin retirarla de planes existentes. |
+| `GET/POST` | `/api/contracts/` | Según rol | Lista contratos o crea un borrador con clave de idempotencia. |
+| `GET/PATCH` | `/api/contracts/{id}/` | Según alcance | Consulta el snapshot o modifica únicamente un borrador. |
+| `POST` | `/api/contracts/{id}/confirm/` | Admin, manager, seller | Confirma atómicamente y congela cliente, beneficiario, plan y prestaciones. |
+| `POST` | `/api/contracts/{id}/cancel/` | Admin, manager | Cancela de forma irreversible, con motivo y auditoría. |
+| `GET` | `/api/contracts/{id}/pdf/` | Lectura | Genera el documento contractual desde el snapshot histórico. |
+| `GET` | `/api/contracts/options/` | Lectura | Entrega estados, frecuencias, sucursales, vendedores y permisos. |
+
+Las operaciones de creación y confirmación requieren el encabezado `Idempotency-Key`. Repetir una solicitud con la misma clave recupera el mismo resultado sin duplicar ventas.
+
+### Permisos de contratos
+
+- `superadmin`: acceso global, gestión y costos internos.
+- `admin` y `manager`: crean, confirman, aplican descuentos y cancelan dentro de su organización.
+- `seller`: vende únicamente en su sucursal, queda fijado como vendedor y nunca recibe costos internos ni aplica descuentos.
+- `collector` y `cashier`: lectura de contratos de su sucursal.
+- `accountant`: lectura organizacional con costos internos, sin crear ni modificar.
+- `inventory`: sin acceso al módulo.
+
+### Decisiones del módulo de contratos
+
+- Los números `CTR-000001` provienen de una secuencia transaccional por organización.
+- Un contrato confirmado es inmutable; solo los borradores pueden editarse.
+- La confirmación copia datos comerciales y prestaciones en snapshots históricos.
+- La prima, cuota y primer vencimiento son condiciones futuras; no registran dinero recibido ni generan cuotas reales.
+- El PDF utiliza exclusivamente el snapshot contractual, incluso si luego cambian clientes, planes o prestaciones.
+- La cancelación conserva el contrato y registra actor, fecha, motivo e historial; no existe eliminación en la API.
 
 ### Permisos de clientes
 

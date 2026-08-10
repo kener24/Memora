@@ -1,4 +1,4 @@
-import { ChevronDown, Home, Layers3, LogOut, Menu, PanelLeftClose, Users, X } from "lucide-react";
+import { ChevronDown, FileSignature, Home, Layers3, LogOut, Menu, PanelLeftClose, Users, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -33,7 +33,7 @@ export function AppLayout() {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
-  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : location.pathname.startsWith("/planes") ? "Planes" : "Inicio";
+  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : location.pathname.startsWith("/planes") ? "Planes" : location.pathname.startsWith("/contratos") ? "Contratos" : "Inicio";
 
   function handleSignOut() {
     setProfileOpen(false);
@@ -75,6 +75,12 @@ export function AppLayout() {
               <span>Planes</span>
             </NavLink>
           )}
+          {user?.permisos.contratos.view && (
+            <NavLink to="/contratos" className={({ isActive }) => `nav-item ${isActive ? "nav-item--active" : ""}`}>
+              <FileSignature size={19} strokeWidth={1.8} />
+              <span>Contratos</span>
+            </NavLink>
+          )}
         </nav>
 
         <div className="sidebar__footer">
@@ -89,7 +95,7 @@ export function AppLayout() {
           </div>
           <div className="sidebar__foundation">
             <PanelLeftClose size={16} aria-hidden="true" />
-            <span>Planes y catálogo · Sprint 2</span>
+            <span>Contratos y ventas · Sprint 3</span>
           </div>
         </div>
       </aside>

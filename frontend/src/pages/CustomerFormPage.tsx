@@ -1,6 +1,6 @@
 import { ArrowLeft, Check, CircleAlert, Save, UserPlus } from "lucide-react";
 import { cloneElement, type FormEvent, type ReactElement, type ReactNode, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { ApiError } from "../api/client";
 import { useToast } from "../contexts/ToastContext";
@@ -25,6 +25,8 @@ export function CustomerFormPage() {
   const editing = Boolean(id);
   useDocumentTitle(editing ? "Editar cliente" : "Registrar cliente");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const { showToast } = useToast();
   const [form, setForm] = useState<CustomerPayload>(initialForm);
   const [options, setOptions] = useState<CustomerModuleOptions | null>(null);
@@ -101,7 +103,7 @@ export function CustomerFormPage() {
       };
       const customer = editing ? await updateCustomer(Number(id), payload) : await createCustomer(payload);
       showToast(editing ? "Información actualizada." : "Cliente registrado correctamente.");
-      navigate(`/clientes/${customer.id}`, { replace: true });
+      navigate(!editing && returnTo ? `${returnTo}?customer=${customer.id}` : `/clientes/${customer.id}`, { replace: true });
     } catch (caught) {
       if (caught instanceof ApiError) {
         setErrors(caught.errors);

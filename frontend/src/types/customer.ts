@@ -62,6 +62,7 @@ export interface CustomerFilters {
   created_to?: string;
   ordering?: string;
   page?: number;
+  page_size?: number;
 }
 
 export interface CustomerPayload {

@@ -20,6 +20,17 @@ export interface BasicPermissions {
   acceso_admin: boolean;
   clientes: CustomerModulePermissions;
   planes: PlanModulePermissions;
+  contratos: ContractModulePermissions;
+}
+
+export interface ContractModulePermissions {
+  view: boolean;
+  create: boolean;
+  edit_draft: boolean;
+  cancel: boolean;
+  apply_discount: boolean;
+  view_costs: boolean;
+  global_access: boolean;
 }
 
 export interface PlanModulePermissions {

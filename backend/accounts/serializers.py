@@ -70,6 +70,7 @@ class UserMeSerializer(serializers.ModelSerializer):
     def get_permisos(self, obj):
         from customers.access import get_customer_permissions
         from plans.access import get_plan_permissions
+        from contracts.access import get_contract_permissions
 
         return {
             "es_staff": obj.is_staff,
@@ -77,4 +78,5 @@ class UserMeSerializer(serializers.ModelSerializer):
             "acceso_admin": obj.is_staff and obj.is_active,
             "clientes": get_customer_permissions(obj).as_dict(),
             "planes": get_plan_permissions(obj).as_dict(),
+            "contratos": get_contract_permissions(obj).as_dict(),
         }
