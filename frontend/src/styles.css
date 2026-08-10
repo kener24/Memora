@@ -488,6 +488,100 @@ button.status-pill:disabled { cursor: default; }
   .toast-region { top: 12px; right: 12px; width: calc(100vw - 24px); }
 }
 
+/* Sprint 4 · cuotas y calendarios */
+.installment-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 17px 0; }
+.installment-metrics article { display: flex; align-items: center; gap: 13px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.78); }
+.installment-metrics article > span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px; color: var(--teal-700); background: var(--teal-100); }
+.installment-metrics article > div { display: flex; flex-direction: column; gap: 3px; }
+.installment-metrics small { color: var(--muted); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.installment-metrics strong { font-size: 18px; letter-spacing: -.03em; }
+.installment-metrics .metric-overdue > span { color: #a44939; background: #f7e5df; }
+.installment-filters { display: grid; grid-template-columns: minmax(210px,1.6fr) repeat(5,minmax(130px,1fr)); gap: 9px; margin-bottom: 14px; padding: 13px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.7); }
+.installment-filters select, .installment-filters input { width: 100%; min-height: 39px; padding: 0 11px; border: 1px solid #d7e0da; border-radius: 9px; color: var(--ink); background: #fff; font-size: 10px; }
+.installment-filters > label:not(.search-field) { display: flex; flex-direction: column; gap: 4px; }
+.installment-filters > label > span { color: var(--muted); font-size: 8px; font-weight: 750; text-transform: uppercase; }
+.installment-filters .search-field { position: relative; }
+.installment-filters .search-field svg { position: absolute; top: 11px; left: 11px; color: #79908c; }
+.installment-filters .search-field input { padding-left: 35px; }
+.table-scroll { overflow-x: auto; }
+.data-table { width: 100%; min-width: 820px; border-collapse: collapse; }
+.data-table th { padding: 13px 14px; color: #71817e; background: #f8f9f5; font-size: 8px; font-weight: 800; letter-spacing: .06em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+.data-table td { padding: 13px 14px; border-top: 1px solid #e8ece8; color: #405957; font-size: 10px; vertical-align: middle; }
+.data-table tbody tr:hover { background: #fbfcf9; }
+.installment-table td small { display: block; margin-top: 3px; color: #7b8987; font-size: 8px; }
+.installment-table td a { color: var(--teal-700); font-weight: 800; text-decoration: none; }
+.installment-status { display: inline-flex; align-items: center; padding: 5px 8px; border-radius: 999px; color: #496866; background: #e6efeb; font-size: 8px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+.installment-status--overdue, .installment-status--cancelled { color: #9a4337; background: #f7e5df; }
+.installment-status--paid { color: #316c51; background: #def0e4; }
+.installment-status--partially_paid { color: #856416; background: #f6edcf; }
+.installment-status--replaced { color: #6b6275; background: #ece8f0; }
+.table-loading { display: grid; min-height: 210px; place-items: center; color: var(--muted); font-size: 11px; }
+.inline-error { display: flex; align-items: center; gap: 8px; }
+.inline-error button { margin-left: auto; border: 0; color: inherit; background: transparent; font-weight: 800; }
+.installment-empty { display: flex; min-height: 300px; flex-direction: column; align-items: center; justify-content: center; padding: 36px; border: 1px dashed #cddbd4; border-radius: 16px; background: rgba(255,255,255,.55); text-align: center; }
+.installment-empty > svg { color: #5c837d; }
+.installment-empty h3 { margin: 15px 0 6px; font-size: 18px; }
+.installment-empty > p { max-width: 520px; margin: 0 0 18px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.contract-installments { display: flex; flex-direction: column; gap: 14px; }
+.schedule-summary { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 18px; padding: 22px; border: 1px solid #cfe0d8; border-radius: 16px; background: linear-gradient(120deg,#f7faf7,#eaf3ee); }
+.schedule-summary h3 { margin: 6px 0; font-size: 19px; }
+.schedule-summary p { margin: 0; color: var(--muted); font-size: 10px; }
+.schedule-summary__actions { display: flex; align-items: flex-start; gap: 8px; }
+.schedule-summary dl { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(4,1fr); gap: 0; margin: 4px 0 0; border-top: 1px solid #d7e5de; }
+.schedule-summary dl div { padding: 15px 14px 0 0; }
+.schedule-summary dt { color: var(--muted); font-size: 8px; font-weight: 750; text-transform: uppercase; }
+.schedule-summary dd { margin: 5px 0 0; font-size: 11px; font-weight: 800; }
+.schedule-history { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.7); }
+.schedule-history > header { display: flex; align-items: center; gap: 8px; padding: 14px 17px; border-bottom: 1px solid var(--line); }
+.schedule-history h3 { margin: 0; font-size: 12px; }
+.schedule-history article { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px 17px; border-bottom: 1px solid #e7ebe7; }
+.schedule-history article:last-child { border-bottom: 0; }
+.schedule-history article strong { font-size: 10px; }
+.schedule-history article p, .schedule-history article small, .schedule-history article time { margin: 4px 0 0; color: var(--muted); font-size: 8px; }
+.schedule-editor { display: flex; flex-direction: column; gap: 14px; }
+.schedule-editor__fields { display: grid; grid-template-columns: repeat(2,1fr); gap: 11px; }
+.schedule-editor__fields label { display: flex; flex-direction: column; gap: 5px; }
+.schedule-editor__fields label > span { color: #516c68; font-size: 9px; font-weight: 750; }
+.schedule-editor__fields input, .schedule-editor__fields select, .schedule-editor__fields textarea { width: 100%; padding: 10px 11px; border: 1px solid #d7e0da; border-radius: 9px; background: #fff; }
+.schedule-editor__fields .field-wide { grid-column: 1 / -1; }
+.manual-schedule { padding: 13px; border-radius: 12px; background: #f4f7f4; }
+.manual-schedule__header { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 10px; }
+.manual-schedule__header > div { display: flex; flex-direction: column; }
+.manual-schedule__header strong { font-size: 11px; }
+.manual-schedule__header small { margin-top: 3px; color: var(--muted); font-size: 8px; }
+.manual-row { display: grid; grid-template-columns: 25px minmax(130px,1fr) minmax(120px,1fr) 34px; align-items: center; gap: 7px; margin-top: 7px; }
+.manual-row > span { color: var(--muted); font-size: 9px; font-weight: 800; text-align: center; }
+.manual-row input { width: 100%; padding: 9px; border: 1px solid #d8e0db; border-radius: 8px; background: #fff; }
+.schedule-preview { overflow: hidden; border: 1px solid #cedfd6; border-radius: 11px; }
+.schedule-preview > header { display: flex; justify-content: space-between; padding: 12px 14px; color: #345c55; background: #eaf3ee; font-size: 10px; }
+.preview-list { max-height: 260px; overflow: auto; }
+.preview-list > div { display: grid; grid-template-columns: 45px 1fr 1fr; gap: 10px; padding: 9px 14px; border-top: 1px solid #e7ebe8; font-size: 9px; }
+.preview-list strong { text-align: right; }
+
+@media (max-width: 1050px) {
+  .installment-filters { grid-template-columns: repeat(3,1fr); }
+  .installment-filters .search-field { grid-column: span 2; }
+}
+@media (max-width: 760px) {
+  .installment-metrics { grid-template-columns: 1fr; }
+  .installment-filters { grid-template-columns: 1fr 1fr; }
+  .installment-filters .search-field { grid-column: 1 / -1; }
+  .schedule-summary { grid-template-columns: 1fr; }
+  .schedule-summary__actions { grid-column: 1; flex-wrap: wrap; }
+  .schedule-summary dl { grid-column: 1; grid-template-columns: 1fr 1fr; }
+  .schedule-editor__fields { grid-template-columns: 1fr; }
+  .schedule-editor__fields .field-wide { grid-column: 1; }
+}
+@media (max-width: 500px) {
+  .installment-filters { grid-template-columns: 1fr; }
+  .installment-filters .search-field { grid-column: 1; }
+  .schedule-summary dl { grid-template-columns: 1fr; }
+  .schedule-summary__actions { flex-direction: column; }
+  .schedule-summary__actions > * { width: 100%; }
+  .manual-row { grid-template-columns: 24px 1fr 34px; }
+  .manual-row input:nth-of-type(2) { grid-column: 2; }
+}
+
 /* Sprint 3 · Contratos y venta de planes */
 .contract-toolbar { grid-template-columns: minmax(280px, 1fr) auto 190px; }
 .contract-filters { grid-template-columns: repeat(6, minmax(115px, 1fr)) auto; }

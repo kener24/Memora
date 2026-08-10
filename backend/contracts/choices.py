@@ -21,6 +21,10 @@ class ContractActivityAction(models.TextChoices):
     CONFIRMED = "confirmed", "Contrato confirmado"
     CANCELLED = "cancelled", "Contrato cancelado"
     PDF_GENERATED = "pdf_generated", "PDF generado"
+    SCHEDULE_GENERATED = "schedule_generated", "Calendario generado"
+    SCHEDULE_REPROGRAMMED = "schedule_reprogrammed", "Calendario reprogramado"
+    SCHEDULE_CANCELLED = "schedule_cancelled", "Calendario cancelado"
+    SCHEDULE_PDF_GENERATED = "schedule_pdf_generated", "Plan de pagos generado"
 
 
 class IdempotencyOperation(models.TextChoices):

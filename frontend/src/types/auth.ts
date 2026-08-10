@@ -21,6 +21,15 @@ export interface BasicPermissions {
   clientes: CustomerModulePermissions;
   planes: PlanModulePermissions;
   contratos: ContractModulePermissions;
+  cuotas: InstallmentModulePermissions;
+}
+
+export interface InstallmentModulePermissions {
+  view_installments: boolean;
+  generate_schedule: boolean;
+  reprogram_schedule: boolean;
+  view_costs: boolean;
+  global_access: boolean;
 }
 
 export interface ContractModulePermissions {

@@ -194,6 +194,14 @@ class ContractViewSet(
                     "beneficiary_name_snapshot", "beneficiary_identity_snapshot",
                     "beneficiary_relationship_snapshot", "status", "updated_at",
                 ))
+                if (
+                    contract.allow_financing
+                    and contract.financed_amount > 0
+                    and contract.payment_frequency != PaymentFrequency.CUSTOM
+                ):
+                    from installments.services import generate_schedule
+
+                    generate_schedule(contract, request.user)
                 record_contract_activity(
                     contract, request.user, ContractActivityAction.CONFIRMED,
                     "Se confirmó la venta y se congeló el snapshot contractual.",
@@ -234,6 +242,9 @@ class ContractViewSet(
             contract.save(update_fields=(
                 "status", "cancelled_at", "cancelled_by", "cancellation_reason", "updated_at",
             ))
+            from installments.services import cancel_contract_schedule
+
+            cancel_contract_schedule(contract, request.user)
             record_contract_activity(
                 contract, request.user, ContractActivityAction.CANCELLED,
                 "Se canceló el contrato de forma controlada.",

@@ -11,6 +11,7 @@ import { ContractDetailPage } from "./pages/ContractDetailPage";
 import { ContractsPage } from "./pages/ContractsPage";
 import { ContractWizardPage } from "./pages/ContractWizardPage";
 import { LoginPage } from "./pages/LoginPage";
+import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PlanDetailPage } from "./pages/PlanDetailPage";
 import { PlanFormPage } from "./pages/PlanFormPage";
@@ -43,6 +44,7 @@ export default function App() {
                 <Route path="contratos" element={<ContractsPage />} />
                 <Route path="contratos/nuevo" element={<ContractWizardPage />} />
                 <Route path="contratos/:id" element={<ContractDetailPage />} />
+                <Route path="cuotas" element={<InstallmentsPage />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />

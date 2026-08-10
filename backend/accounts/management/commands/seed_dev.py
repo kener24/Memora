@@ -14,6 +14,7 @@ from customers.services import allocate_customer_code, record_activity
 from contracts.choices import ContractActivityAction, ContractStatus, PaymentFrequency
 from contracts.models import Contract
 from contracts.services import allocate_contract_number, record_contract_activity, snapshot_contract
+from installments.services import generate_schedule
 from organizations.models import Branch, Organization
 from plans.choices import PlanActivityAction
 from plans.models import FuneralPlan, FuneralPlanItem, FuneralServiceItem
@@ -222,4 +223,12 @@ class Command(BaseCommand):
                 "Contrato demostrativo confirmado con snapshot histórico.",
             )
 
-        self.stdout.write(self.style.SUCCESS("Contrato activo de demostración creado o verificado."))
+        if (
+            contract.status == ContractStatus.ACTIVE
+            and contract.allow_financing
+            and contract.financed_amount > 0
+            and contract.payment_frequency != PaymentFrequency.CUSTOM
+        ):
+            generate_schedule(contract, user)
+
+        self.stdout.write(self.style.SUCCESS("Contrato y calendario de cuotas de demostración creados o verificados."))

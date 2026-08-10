@@ -1,6 +1,6 @@
 # Memora
 
-Memora es una plataforma web para la gestión integral de empresas funerarias. Incluye autenticación segura, clientes y beneficiarios, catálogo de planes y la venta contractual completa con snapshots históricos y PDF profesional. Los pagos reales y la operación funeraria pertenecen a sprints posteriores.
+Memora es una plataforma web para la gestión integral de empresas funerarias. Incluye autenticación segura, clientes y beneficiarios, catálogo de planes, venta contractual y un motor versionado de cuotas con calendarios y PDF. Los pagos reales y la operación funeraria pertenecen a sprints posteriores.
 
 ## Arquitectura
 
@@ -12,6 +12,7 @@ Memora/
 │   ├── customers/           Clientes, beneficiarios, contactos e historial
 │   ├── plans/               Planes, prestaciones, disponibilidad e historial
 │   ├── contracts/           Contratos, ventas, snapshots, auditoría y PDF
+│   ├── installments/        Cuotas, calendarios, reprogramación y plan de pagos
 │   ├── core/                Modelos base, respuestas y errores comunes
 │   └── memora/              Configuración y rutas del proyecto
 └── frontend/                React + TypeScript + Vite
@@ -132,6 +133,14 @@ La aplicación estará disponible en `http://localhost:5173`. `VITE_API_BASE_URL
 | `POST` | `/api/contracts/{id}/cancel/` | Admin, manager | Cancela de forma irreversible, con motivo y auditoría. |
 | `GET` | `/api/contracts/{id}/pdf/` | Lectura | Genera el documento contractual desde el snapshot histórico. |
 | `GET` | `/api/contracts/options/` | Lectura | Entrega estados, frecuencias, sucursales, vendedores y permisos. |
+| `GET` | `/api/installments/` | Según alcance | Busca, filtra, ordena y pagina las obligaciones del calendario activo. |
+| `GET` | `/api/installments/options/` | Lectura | Entrega filtros y permisos del módulo de cuotas. |
+| `GET` | `/api/installments/summary/` | Lectura | Resume vencimientos de hoy, vencidas y monto programado del mes. |
+| `GET` | `/api/contracts/{id}/installment-schedule/` | Lectura | Obtiene calendario, cuotas paginadas y versiones históricas. |
+| `POST` | `/api/contracts/{id}/installment-schedule/generate/` | Admin, manager | Genera de forma idempotente un calendario faltante o personalizado. |
+| `POST` | `/api/contracts/{id}/installment-schedule/preview/` | Admin, manager | Calcula una vista previa sin persistir datos. |
+| `POST` | `/api/contracts/{id}/installment-schedule/reprogram/` | Admin, manager | Reemplaza el calendario activo conservando la versión anterior. |
+| `GET` | `/api/contracts/{id}/installment-schedule/pdf/` | Lectura | Descarga el plan histórico de pagos en PDF. |
 
 Las operaciones de creación y confirmación requieren el encabezado `Idempotency-Key`. Repetir una solicitud con la misma clave recupera el mismo resultado sin duplicar ventas.
 
@@ -149,9 +158,29 @@ Las operaciones de creación y confirmación requieren el encabezado `Idempotenc
 - Los números `CTR-000001` provienen de una secuencia transaccional por organización.
 - Un contrato confirmado es inmutable; solo los borradores pueden editarse.
 - La confirmación copia datos comerciales y prestaciones en snapshots históricos.
-- La prima, cuota y primer vencimiento son condiciones futuras; no registran dinero recibido ni generan cuotas reales.
+- La prima, cuota y primer vencimiento son condiciones comerciales; al confirmar un financiamiento automático generan obligaciones, nunca dinero recibido.
 - El PDF utiliza exclusivamente el snapshot contractual, incluso si luego cambian clientes, planes o prestaciones.
 - La cancelación conserva el contrato y registra actor, fecha, motivo e historial; no existe eliminación en la API.
+
+### Decisiones del motor de cuotas
+
+- `InstallmentSchedule` es una cabecera versionada. Solo existe una versión activa por contrato; las reemplazadas y canceladas nunca se eliminan.
+- `Installment` es una obligación contractual, no un pago, recibo, movimiento de caja ni comprobante fiscal.
+- El pendiente se deriva de monto vigente menos monto pagado y el estado vencido se calcula con la fecha local efectiva, evitando datos obsoletos.
+- Todos los importes se calculan con `Decimal`; la última cuota se ajusta para que la suma coincida exactamente con el monto financiado.
+- La frecuencia mensual conserva el día ancla original y usa el último día válido del mes cuando corresponde: 31 de enero, 28/29 de febrero, 31 de marzo.
+- Semanal usa intervalos de 7 días y cada 15 días usa intervalos exactos de 15 días.
+- Los calendarios personalizados exigen fechas e importes manuales cuya suma sea exactamente el monto financiado.
+- Confirmar un contrato financiado automático genera el calendario en la misma transacción. Los contratos al contado no generan cuotas y los personalizados esperan carga manual.
+- Reprogramar exige motivo, cancela las obligaciones anteriores y crea una nueva versión. En este sprint se bloquea si existiera algún pago aplicado.
+- Cancelar un contrato cancela su calendario activo y todas sus obligaciones sin borrar la trazabilidad.
+- Los contratos activos creados antes del Sprint 4 pueden generar su calendario mediante el endpoint seguro e idempotente.
+
+### Permisos de cuotas
+
+- `superadmin` tiene alcance global; `admin` y `manager` gestionan calendarios dentro de su organización.
+- `seller`, `collector`, `cashier` y `accountant` poseen lectura según las reglas de sucursal/organización existentes.
+- `inventory` no tiene acceso al módulo. El backend aplica aislamiento por organización, sucursal y contrato en cada endpoint y PDF.
 
 ### Permisos de clientes
 
