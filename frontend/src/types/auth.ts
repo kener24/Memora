@@ -18,6 +18,17 @@ export interface BasicPermissions {
   es_staff: boolean;
   es_superusuario: boolean;
   acceso_admin: boolean;
+  clientes: CustomerModulePermissions;
+}
+
+export interface CustomerModulePermissions {
+  view: boolean;
+  create: boolean;
+  edit: boolean;
+  change_status: boolean;
+  manage_beneficiaries: boolean;
+  manage_contacts: boolean;
+  global_access: boolean;
 }
 
 export interface AuthUser {
@@ -47,4 +58,3 @@ export interface ApiFailure {
   message: string;
   errors: Record<string, unknown>;
 }
-

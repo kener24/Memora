@@ -1,4 +1,4 @@
-import { ChevronDown, Home, LogOut, Menu, PanelLeftClose, X } from "lucide-react";
+import { ChevronDown, Home, LogOut, Menu, PanelLeftClose, Users, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -33,6 +33,7 @@ export function AppLayout() {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
+  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : "Inicio";
 
   function handleSignOut() {
     setProfileOpen(false);
@@ -62,6 +63,12 @@ export function AppLayout() {
             <Home size={19} strokeWidth={1.8} />
             <span>Inicio</span>
           </NavLink>
+          {user?.permisos.clientes.view && (
+            <NavLink to="/clientes" className={({ isActive }) => `nav-item ${isActive ? "nav-item--active" : ""}`}>
+              <Users size={19} strokeWidth={1.8} />
+              <span>Clientes</span>
+            </NavLink>
+          )}
         </nav>
 
         <div className="sidebar__footer">
@@ -76,7 +83,7 @@ export function AppLayout() {
           </div>
           <div className="sidebar__foundation">
             <PanelLeftClose size={16} aria-hidden="true" />
-            <span>Fundación técnica · Sprint 0</span>
+            <span>Clientes y beneficiarios · Sprint 1</span>
           </div>
         </div>
       </aside>
@@ -89,7 +96,7 @@ export function AppLayout() {
             </button>
             <div>
               <p className="topbar__eyebrow">Memora</p>
-              <h1>Inicio</h1>
+              <h1>{pageTitle}</h1>
             </div>
           </div>
 
