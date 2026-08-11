@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "./contexts/AuthContext";
@@ -23,6 +24,8 @@ import { PlansPage } from "./pages/PlansPage";
 import { ServicesPage } from "./pages/ServicesPage";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { PublicOnlyRoute } from "./routes/PublicOnlyRoute";
+
+const CashPage = lazy(() => import("./pages/CashPage").then((module) => ({ default: module.CashPage })));
 
 export default function App() {
   return (
@@ -53,6 +56,7 @@ export default function App() {
                 <Route path="cartera" element={<PortfolioPage />} />
                 <Route path="operacion-cobranza" element={<CollectionOperationsPage />} />
                 <Route path="mi-jornada" element={<CollectorWorkspacePage />} />
+                <Route path="caja" element={<Suspense fallback={<div className="table-loading">Preparando Caja…</div>}><CashPage /></Suspense>} />
               </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />

@@ -24,6 +24,23 @@ export interface BasicPermissions {
   cuotas: InstallmentModulePermissions;
   pagos: PaymentModulePermissions;
   cobranza: CollectionModulePermissions;
+  caja: CashModulePermissions;
+}
+
+export interface CashModulePermissions {
+  view_cash_register: boolean;
+  manage_cash_register: boolean;
+  open_session: boolean;
+  view_session: boolean;
+  close_session: boolean;
+  create_income: boolean;
+  create_expense: boolean;
+  void_movement: boolean;
+  receive_collector_settlement: boolean;
+  perform_cash_count: boolean;
+  view_cash_history: boolean;
+  export_cash: boolean;
+  global_access: boolean;
 }
 
 export interface CollectionModulePermissions {

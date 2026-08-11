@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "installments",
     "payments",
     "collection_management",
+    "cash",
     "core",
 ]
 

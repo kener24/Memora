@@ -336,6 +336,24 @@ Administradores y gerentes gestionan cobradores, asignaciones, zonas, rutas y de
 
 La consola administrativa responsive está en `/operacion-cobranza`. Los orígenes locales `http://localhost:5173` y `http://127.0.0.1:5173` están habilitados por defecto para desarrollo; en otros entornos se deben declarar explícitamente mediante `CORS_ALLOWED_ORIGINS`.
 
+### Sprint 8: caja, arqueo y conciliación
+
+El módulo `/caja` separa el cobro comercial del control de dinero físico. Un pago sigue naciendo exclusivamente en el motor del Sprint 5 y genera un movimiento explícito en la sesión abierta del cajero. Los pagos de cobrador continúan fuera de caja hasta que su liquidación aceptada se recibe; una transferencia se informa en el resumen del método, pero nunca incrementa billetes.
+
+La fórmula operativa es `efectivo esperado = fondo inicial + entradas confirmadas que afectan efectivo − salidas confirmadas que afectan efectivo`. El backend recalcula las denominaciones del arqueo, exige motivo para faltantes o sobrantes, comprueba que no existan movimientos posteriores al conteo y congela al cierre los totales, métodos, efectivo contado y diferencia. Una sesión cerrada no se reabre ni admite movimientos; anulaciones e incidencias conservan auditoría y nunca eliminan historia financiera.
+
+| Recurso | Operaciones principales |
+| --- | --- |
+| `/api/cash/dashboard/` | Indicadores diarios separados por pagos, efectivo, métodos y diferencias. |
+| `/api/cash/registers/` | Alta, consulta y activación/inactivación de cajas, sin eliminación. |
+| `/api/cash/sessions/` | Historial, sesión vigente, apertura, arqueo, cierre y detalle inmutable. |
+| `/api/cash/movements/` | Ingresos/egresos manuales, filtros, totales y anulación controlada. |
+| `/api/cash/settlement-receptions/` | Pendientes y recepción idempotente de liquidaciones aceptadas. |
+| `/api/cash/movements/export.xlsx` | Excel filtrado de movimientos y conciliación. |
+| `/api/cash/sessions/{id}/closing-pdf/` | Acta PDF de cierre con arqueo, movimientos y firmas. |
+
+Administradores y gerentes configuran y supervisan; cajeros abren, operan, reciben, arquean y cierran su propia sesión; contabilidad consulta y exporta. Cobradores, vendedores e inventario no acceden. Toda consulta y mutación vuelve a validar organización, sucursal, actor, estado e idempotencia en el backend.
+
 ## Validación
 
 Backend:

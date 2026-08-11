@@ -193,6 +193,14 @@ class PaymentFlowTests(ContractAPITestCase):
         self.authenticate(self.collector_a)
         self.client.post("/api/collector-work-sessions/start/", {}, format="json")
         collected = self.pay(contract, "100.00", user=self.collector_a, key="collector-payment-key")
+        self.authenticate(self.admin_a)
+        cash_register = self.client.post("/api/cash/registers/", {
+            "branch": self.branch_a.pk, "name": "Caja de prueba pagos",
+        }, format="json").data["data"]
+        self.authenticate(self.cashier_a)
+        self.client.post("/api/cash/sessions/open/", {
+            "cash_register": cash_register["id"], "opening_cash": "0.00",
+        }, format="json", HTTP_IDEMPOTENCY_KEY="cashier-open-session")
         cashier = self.pay(contract, "100.00", user=self.cashier_a, key="cashier-payment-key")
         seller = self.pay(contract, "100.00", user=self.seller_a, key="seller-payment-key")
         self.authenticate(self.collector_a)

@@ -39,6 +39,7 @@ def payment_queryset():
         "organization", "branch", "contract", "customer", "received_by", "created_by", "voided_by",
         "receipt",
         "collector_session",
+        "cash_movement__cash_session",
     ).prefetch_related("applications__installment__schedule")
 
 

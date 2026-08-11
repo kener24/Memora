@@ -74,6 +74,7 @@ class UserMeSerializer(serializers.ModelSerializer):
         from installments.access import get_installment_permissions
         from payments.access import get_payment_permissions
         from collection_management.access import get_collection_permissions
+        from cash.access import get_cash_permissions
 
         return {
             "es_staff": obj.is_staff,
@@ -85,4 +86,5 @@ class UserMeSerializer(serializers.ModelSerializer):
             "cuotas": get_installment_permissions(obj).as_dict(),
             "pagos": get_payment_permissions(obj).as_dict(),
             "cobranza": get_collection_permissions(obj).as_dict(),
+            "caja": get_cash_permissions(obj).as_dict(),
         }

@@ -309,6 +309,9 @@ def register_payment(contract, user, payload, idempotency_key, *, can_backdate=F
         ).exists():
             raise ValidationError({"contract": "No puedes cobrar un contrato que no está asignado a tu cartera."})
 
+    from cash.services import resolve_cash_session_for_payment
+    cash_session = resolve_cash_session_for_payment(user, contract.branch)
+
     preview = preview_allocation(contract, payload["amount"], payload["payment_type"])
     payment = Payment.objects.create(
         organization=contract.organization, branch=contract.branch, contract=contract,
@@ -321,6 +324,8 @@ def register_payment(contract, user, payload, idempotency_key, *, can_backdate=F
     )
     _apply_lines(payment, preview.applications)
     receipt = _receipt_snapshot(payment, preview)
+    from cash.services import create_payment_movement
+    create_payment_movement(payment, cash_session, user)
     record_contract_activity(
         contract, user, ContractActivityAction.PAYMENT_CREATED,
         f"Se registró {payment.payment_number} por L {payment.amount:,.2f}.",
@@ -414,6 +419,8 @@ def void_payment(payment, user, reason):
     payment = Payment.objects.select_for_update().select_related("contract", "receipt").get(pk=payment.pk)
     if payment.status == PaymentStatus.VOIDED:
         raise ConflictError("Este pago ya fue anulado.")
+    from cash.services import void_payment_movement
+    void_payment_movement(payment, user, reason)
     payment.status = PaymentStatus.VOIDED
     payment.voided_at = timezone.now()
     payment.voided_by = user

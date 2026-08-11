@@ -87,6 +87,7 @@ class PaymentSerializer(serializers.ModelSerializer):
     receipt = ReceiptSerializer(read_only=True)
     applications = PaymentApplicationSerializer(many=True, read_only=True)
     financial_summary = serializers.SerializerMethodField()
+    cash_movement = serializers.SerializerMethodField()
 
     class Meta:
         model = Payment
@@ -97,6 +98,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "status", "status_label", "notes", "received_by", "created_by", "idempotency_key",
             "initial_amount_applied", "direct_amount_applied", "voided_at", "voided_by", "void_reason",
             "collector_session",
+            "cash_movement",
             "receipt", "applications", "financial_summary", "created_at", "updated_at",
         )
 
@@ -121,3 +123,14 @@ class PaymentSerializer(serializers.ModelSerializer):
         if self.context.get("include_financial_summary") is False:
             return None
         return financial_summary(obj.contract)
+
+    def get_cash_movement(self, obj):
+        movement = getattr(obj, "cash_movement", None)
+        if not movement:
+            return None
+        return {
+            "id": movement.pk, "movement_number": movement.movement_number,
+            "cash_session": movement.cash_session_id,
+            "session_number": movement.cash_session.session_number,
+            "affects_cash": movement.affects_cash, "status": movement.status,
+        }

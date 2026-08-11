@@ -5,6 +5,7 @@ from django.utils import timezone
 from rest_framework import status
 
 from accounts.models import Role, RoleCode
+from cash.services import create_cash_register, open_cash_session
 from contracts.models import Contract
 from contracts.tests.base import ContractAPITestCase
 from payments.models import Payment
@@ -189,6 +190,10 @@ class CollectionOperationsSprintTests(ContractAPITestCase):
     def test_admin_and_cashier_payment_flows_do_not_require_collector_session(self):
         contract = self.active_contract()
         admin_payment = self.pay(contract, "100.00", key="ops-admin-pay", user=self.admin_a)
+        cash_register = create_cash_register(
+            self.org_a, self.branch_a, self.admin_a, "Caja de prueba Sprint 8"
+        )
+        open_cash_session(cash_register, self.cashier_a, "0.00", "", "ops-cashier-open")
         cashier_payment = self.pay(contract, "100.00", key="ops-cashier-pay", user=self.cashier_a)
         self.assertEqual((admin_payment.status_code, cashier_payment.status_code), (201, 201))
         self.assertFalse(Payment.objects.exclude(collector_session=None).exists())
