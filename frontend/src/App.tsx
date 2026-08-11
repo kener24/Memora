@@ -13,6 +13,7 @@ import { ContractWizardPage } from "./pages/ContractWizardPage";
 import { LoginPage } from "./pages/LoginPage";
 import { InstallmentsPage } from "./pages/InstallmentsPage";
 import { PaymentsPage } from "./pages/PaymentsPage";
+import { PortfolioPage } from "./pages/PortfolioPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PlanDetailPage } from "./pages/PlanDetailPage";
 import { PlanFormPage } from "./pages/PlanFormPage";
@@ -47,6 +48,7 @@ export default function App() {
                 <Route path="contratos/:id" element={<ContractDetailPage />} />
                 <Route path="cuotas" element={<InstallmentsPage />} />
                 <Route path="pagos" element={<PaymentsPage />} />
+                <Route path="cartera" element={<PortfolioPage />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />

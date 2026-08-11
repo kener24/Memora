@@ -1,5 +1,5 @@
 import { Banknote, CircleAlert, Download, Eye, FileCheck2, Plus, Printer, ReceiptText, ShieldAlert, XCircle } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ApiError } from "../../api/client";
 import { useAuth } from "../../contexts/AuthContext";
@@ -23,7 +23,7 @@ const methods = [
   { value: "card", label: "Tarjeta" }, { value: "check", label: "Cheque" }, { value: "other", label: "Otro" },
 ];
 
-export function ContractPaymentsTab({ contract }: { contract: ContractDetail }) {
+export function ContractPaymentsTab({ contract, autoOpen = false }: { contract: ContractDetail; autoOpen?: boolean }) {
   const { user } = useAuth(); const { showToast } = useToast();
   const permissions = user?.permisos.pagos;
   const [data, setData] = useState<ContractPaymentsPayload | null>(null);
@@ -34,6 +34,7 @@ export function ContractPaymentsTab({ contract }: { contract: ContractDetail }) 
   const [preview, setPreview] = useState<PaymentPreview | null>(null); const [working, setWorking] = useState(false); const [formError, setFormError] = useState(""); const [key, setKey] = useState("");
   const [result, setResult] = useState<Payment | null>(null); const [receiptOpen, setReceiptOpen] = useState(false);
   const [voidTarget, setVoidTarget] = useState<Payment | null>(null); const [voidReason, setVoidReason] = useState("");
+  const autoOpened = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true); setError("");
@@ -42,6 +43,11 @@ export function ContractPaymentsTab({ contract }: { contract: ContractDetail }) 
     finally { setLoading(false); }
   }, [contract.id, page]);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    if (autoOpen && data && permissions?.create_payment && !autoOpened.current) {
+      autoOpened.current = true; openPayment(false);
+    }
+  }, [autoOpen, data, permissions?.create_payment]);
 
   function openPayment(settle = false) {
     setSettlementMode(settle); setPaymentType(settle ? "settlement" : "installment");

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "contracts",
     "installments",
     "payments",
+    "collection_management",
     "core",
 ]
 

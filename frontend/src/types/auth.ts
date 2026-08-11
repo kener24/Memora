@@ -23,6 +23,20 @@ export interface BasicPermissions {
   contratos: ContractModulePermissions;
   cuotas: InstallmentModulePermissions;
   pagos: PaymentModulePermissions;
+  cobranza: CollectionModulePermissions;
+}
+
+export interface CollectionModulePermissions {
+  view_portfolio: boolean;
+  view_overdue: boolean;
+  create_action: boolean;
+  view_action: boolean;
+  void_action: boolean;
+  create_promise: boolean;
+  view_promise: boolean;
+  resolve_promise: boolean;
+  export_portfolio: boolean;
+  global_access: boolean;
 }
 
 export interface PaymentModulePermissions {

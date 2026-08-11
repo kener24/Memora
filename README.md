@@ -256,6 +256,40 @@ La protección de costos ocurre al serializar la respuesta del backend. Los camp
 - Solo puede existir un contacto principal activo por cliente, garantizado también por la base de datos.
 - `CustomerActivity` conserva un historial administrativo básico sin almacenar cambios sensibles completos.
 
+### Sprint 6: cartera, morosidad y cobranza
+
+La cartera no almacena un saldo paralelo. `PortfolioService` deriva cada indicador desde contratos activos, cuotas del calendario activo y pagos confirmados:
+
+- cartera pendiente = precio contractual − pagos confirmados;
+- cartera vencida = suma del pendiente de cuotas con vencimiento anterior a hoy;
+- cartera por vencer = cartera pendiente − cartera vencida (incluye prima pendiente sin fecha de vencimiento propia);
+- días de mora = días desde la cuota pendiente vencida más antigua;
+- estado crítico = más de 90 días de mora; próximo a vencer = cuota entre hoy y los próximos 7 días;
+- aging = 1–30, 31–60, 61–90, 91–120 y más de 120 días, calculado cuota por cuota.
+
+`CollectionAction` registra contactos inmutables y anulables con motivo. `PaymentPromise` conserva una sola promesa pendiente por contrato; su estado efectivo pasa a incumplido al vencer la fecha aunque no exista un cron, y la resolución controlada deja auditoría. Cumplir una promesa exige un pago confirmado posterior, del mismo contrato, por monto suficiente y dentro de la ventana permitida.
+
+| Método | Endpoint | Uso |
+| --- | --- | --- |
+| `GET` | `/api/collections/portfolio/` | Cartera paginada, búsqueda, filtros, ordenamiento y totales filtrados. |
+| `GET` | `/api/collections/portfolio/summary/` | Indicadores globales y cobro confirmado del mes. |
+| `GET` | `/api/collections/portfolio/aging/` | Antigüedad de las cuotas vencidas. |
+| `GET` | `/api/collections/portfolio/contracts/{id}/` | Detalle financiero, gestiones y promesas del contrato. |
+| `GET` | `/api/collections/portfolio/customers/{id}/` | Cartera y cobranza consolidada del cliente. |
+| `GET/POST` | `/api/collections/collection-actions/` | Historial o registro de gestiones. |
+| `POST` | `/api/collections/collection-actions/{id}/void/` | Anulación auditada, sin eliminar historial. |
+| `GET/POST` | `/api/collections/payment-promises/` | Consulta o registro de promesas. |
+| `POST` | `/api/collections/payment-promises/{id}/fulfill/` | Cumplimiento contra un pago confirmado real. |
+| `POST` | `/api/collections/payment-promises/{id}/break/` | Confirmación auditada de incumplimiento efectivo. |
+| `POST` | `/api/collections/payment-promises/{id}/cancel/` | Cancelación controlada con motivo. |
+| `GET` | `/api/collections/collection-follow-ups/` | Agenda atrasada, de hoy y de próximos 7 días. |
+| `GET` | `/api/collections/portfolio/export.xlsx` | Excel real con filtros, totales, formatos y panel congelado. |
+| `GET` | `/api/collections/portfolio/export.pdf` | PDF horizontal filtrado con encabezados repetidos. |
+
+Administradores y gerentes gestionan y resuelven cobranza en toda su organización; cobradores registran gestiones y promesas en su sucursal; cajeros, vendedores y contadores consultan según su alcance; contadores también exportan. Inventario no tiene acceso. El backend aplica alcance de organización, sucursal y contrato en cada consulta, detalle, mutación y exportación.
+
+La interfaz `/cartera` ofrece indicadores, aging, filtros, tabla responsive con enlaces telefónicos, detalle, agenda y formulario de gestión. El inicio reutiliza el resumen real. El registro de dinero permanece exclusivamente en el flujo seguro del Sprint 5.
+
 Login recibe:
 
 ```json

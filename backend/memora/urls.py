@@ -10,6 +10,7 @@ urlpatterns = [
     path("api/", include("contracts.urls")),
     path("api/", include("installments.urls")),
     path("api/", include("payments.urls")),
+    path("api/collections/", include("collection_management.urls")),
 ]
 
 admin.site.site_header = "Administración de Memora"

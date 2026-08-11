@@ -488,6 +488,98 @@ button.status-pill:disabled { cursor: default; }
   .toast-region { top: 12px; right: 12px; width: calc(100vw - 24px); }
 }
 
+/* Sprint 6 · cartera, morosidad y cobranza */
+.dashboard-kpis { grid-template-columns: repeat(4,1fr); margin-top: 15px; }
+.dashboard-portfolio-link { width: max-content; margin: 0 0 20px auto; }
+.portfolio-heading { align-items: flex-end; }
+.portfolio-actions { display: flex; gap: 8px; }
+.portfolio-kpis { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 11px; margin-bottom: 14px; }
+.portfolio-kpis article { position: relative; overflow: hidden; min-width: 0; padding: 16px; border: 1px solid #d7e2dc; border-radius: 14px; background: #fff; }
+.portfolio-kpis article > span { display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 14px; border-radius: 10px; color: #3e7166; background: #e5f1eb; }
+.portfolio-kpis small { display: block; color: #768782; font-size: 8px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.portfolio-kpis strong { display: block; overflow: hidden; margin-top: 6px; color: #345c55; font-family: Georgia,serif; font-size: 20px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.portfolio-kpis p { margin: 5px 0 0; color: #87938f; font-size: 8px; }
+.portfolio-kpis .kpi-overdue > span { color: #9d4b43; background: #f9e8e5; }
+.portfolio-kpis .kpi-overdue strong, .overdue-money { color: #a54c43; font-weight: 800; }
+.portfolio-kpis .kpi-critical { border-color: #efcbc5; background: #fff8f7; }
+.portfolio-kpis .kpi-critical > span { color: #a8473e; background: #f9dfdb; }
+.aging-card, .agenda-card { margin-bottom: 14px; padding: 17px; border: 1px solid #d7e2dc; border-radius: 15px; background: #fff; }
+.aging-card > header, .agenda-card > header { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 13px; }
+.aging-card h3, .agenda-card h3 { margin: 3px 0 0; color: #365b55; font-size: 14px; }
+.aging-card > header > strong { color: #9c4b43; font-family: Georgia,serif; font-size: 18px; }
+.aging-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
+.aging-grid button { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; padding: 11px; border: 1px solid #e0e6e2; border-radius: 10px; color: #5d716d; background: #fafcf9; text-align: left; }
+.aging-grid button:hover { border-color: #c3d7ce; background: #f1f7f3; }
+.aging-grid span { font-size: 8px; font-weight: 800; text-transform: uppercase; }
+.aging-grid strong { margin-top: 6px; color: #85514a; font-size: 12px; }
+.aging-grid small { margin-top: 3px; color: #8a9693; font-size: 8px; }
+.portfolio-filters { grid-template-columns: minmax(270px,1.7fr) repeat(5,minmax(130px,1fr)); }
+.portfolio-table { min-width: 1250px; }
+.portfolio-table .table-link { display: flex; flex-direction: column; align-items: flex-start; padding: 0; border: 0; color: #345f57; background: none; text-align: left; }
+.portfolio-table td small, .table-link small { display: block; margin-top: 4px; color: #84918e; font-size: 8px; font-weight: 400; }
+.phone-link { display: inline-flex; align-items: center; gap: 5px; color: #3d7167; font-weight: 750; }
+.collection-status, .priority-badge { display: inline-flex; width: max-content; align-items: center; padding: 5px 8px; border-radius: 999px; font-size: 8px; font-weight: 850; text-transform: uppercase; }
+.collection-status--current, .collection-status--paid, .priority-badge--low { color: #267157; background: #dff2e9; }
+.collection-status--due_soon, .priority-badge--medium { color: #8a651d; background: #fff0cb; }
+.collection-status--overdue, .priority-badge--high { color: #985137; background: #fde6d8; }
+.collection-status--severely_overdue, .priority-badge--critical { color: #a23f38; background: #f9dfdc; }
+.agenda-card > header > span { padding: 6px 9px; border-radius: 999px; color: #985137; background: #fde9df; font-size: 8px; font-weight: 800; }
+.agenda-columns { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.agenda-columns article { min-width: 0; padding: 12px; border-radius: 11px; background: #f8faf8; }
+.agenda-columns h4 { margin: 0 0 9px; color: #59716c; font-size: 9px; text-transform: uppercase; }
+.agenda-columns button { display: grid; width: 100%; grid-template-columns: 1fr auto; gap: 3px 8px; padding: 9px 0; border: 0; border-bottom: 1px solid #e3e8e4; color: #405f5a; background: none; text-align: left; }
+.agenda-columns button strong { overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-columns button span { color: #7c8b87; font-size: 8px; }
+.agenda-columns button small { display: flex; grid-column: 1 / -1; align-items: center; gap: 4px; color: #95604c; font-size: 8px; }
+.agenda-columns article > p { margin: 0; color: #93a09c; font-size: 9px; }
+.collection-form textarea { resize: vertical; }
+.collection-detail { display: flex; flex-direction: column; gap: 15px; }
+.detail-balance { display: grid; grid-template-columns: repeat(4,1fr); overflow: hidden; border: 1px solid #d8e3dd; border-radius: 12px; background: #d8e3dd; gap: 1px; }
+.detail-balance > div { min-width: 0; padding: 14px; background: #f8faf8; }
+.detail-balance small { display: block; color: #7d8c88; font-size: 8px; text-transform: uppercase; }
+.detail-balance strong { display: block; overflow: hidden; margin-top: 6px; color: #355c54; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
+.collection-detail-actions { display: flex; justify-content: flex-end; gap: 7px; }
+.collection-timeline { padding: 16px; border: 1px solid #dbe4df; border-radius: 12px; }
+.collection-timeline h3 { margin: 0 0 13px; color: #3f605b; font-size: 12px; }
+.collection-timeline article { display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 11px 0; border-bottom: 1px solid #e5eae7; }
+.collection-timeline article > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; color: #47746b; background: #e4f0ea; }
+.collection-timeline article strong { color: #405f5a; font-size: 9px; }
+.collection-timeline article p { margin: 5px 0; color: #687b77; font-size: 9px; line-height: 1.5; }
+.collection-timeline article small, .collection-timeline article em { display: block; color: #87938f; font-size: 8px; font-style: normal; }
+.collection-timeline article em { margin-top: 4px; color: #91604a; }
+.contract-collection-tab { display: flex; flex-direction: column; gap: 15px; }
+.collection-contract-facts { display: grid; grid-template-columns: repeat(3,1fr); overflow: hidden; border: 1px solid #d8e3dd; border-radius: 12px; background: #d8e3dd; gap: 1px; }
+.collection-contract-facts > div { display: flex; align-items: center; gap: 10px; padding: 15px; color: #47746b; background: #f8faf8; }
+.collection-contract-facts span { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.collection-contract-facts small { color: #7d8c88; font-size: 8px; text-transform: uppercase; }
+.collection-contract-facts strong { overflow: hidden; color: #405f5a; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.collection-contract-facts a { color: #3d7167; }
+.contract-collection-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.contract-collection-heading h3 { margin-top: 3px; }
+
+@media (max-width: 1180px) {
+  .portfolio-kpis { grid-template-columns: repeat(3,1fr); }
+  .portfolio-filters { grid-template-columns: repeat(3,1fr); }
+  .portfolio-filters .search-field { grid-column: span 2; }
+}
+@media (max-width: 760px) {
+  .portfolio-heading { align-items: stretch; flex-direction: column; }
+  .portfolio-actions > button { flex: 1; }
+  .portfolio-kpis { grid-template-columns: 1fr 1fr; }
+  .aging-grid { grid-template-columns: 1fr 1fr; }
+  .agenda-columns { grid-template-columns: 1fr; }
+  .detail-balance { grid-template-columns: 1fr 1fr; }
+  .collection-contract-facts { grid-template-columns: 1fr; }
+  .portfolio-filters { grid-template-columns: 1fr 1fr; }
+  .portfolio-filters .search-field { grid-column: 1 / -1; }
+}
+@media (max-width: 500px) {
+  .portfolio-kpis, .aging-grid, .detail-balance, .portfolio-filters { grid-template-columns: 1fr; }
+  .portfolio-filters .search-field { grid-column: auto; }
+  .collection-detail-actions { flex-direction: column; }
+  .collection-detail-actions > * { justify-content: center; width: 100%; }
+}
+
 /* Sprint 4 · cuotas y calendarios */
 .installment-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 17px 0; }
 .installment-metrics article { display: flex; align-items: center; gap: 13px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.78); }
