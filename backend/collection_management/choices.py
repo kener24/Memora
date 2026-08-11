@@ -68,3 +68,57 @@ class AuditEvent(models.TextChoices):
     PROMISE_FULFILLED = "promise_fulfilled", "Promesa cumplida"
     PROMISE_BROKEN = "promise_broken", "Promesa incumplida"
     PROMISE_CANCELLED = "promise_cancelled", "Promesa cancelada"
+
+
+class AssignmentStatus(models.TextChoices):
+    ACTIVE = "active", "Activa"
+    ENDED = "ended", "Finalizada"
+    REASSIGNED = "reassigned", "Reasignada"
+    CANCELLED = "cancelled", "Cancelada"
+
+
+class DayOfWeek(models.IntegerChoices):
+    MONDAY = 0, "Lunes"
+    TUESDAY = 1, "Martes"
+    WEDNESDAY = 2, "Miércoles"
+    THURSDAY = 3, "Jueves"
+    FRIDAY = 4, "Viernes"
+    SATURDAY = 5, "Sábado"
+    SUNDAY = 6, "Domingo"
+
+
+class RouteVisitStatus(models.TextChoices):
+    PENDING = "pending", "Pendiente"
+    VISITED = "visited", "Visitado"
+    NOT_FOUND = "not_found", "No encontrado"
+    POSTPONED = "postponed", "Pospuesto"
+
+
+class WorkSessionStatus(models.TextChoices):
+    OPEN = "open", "Abierta"
+    CLOSED = "closed", "Cerrada"
+    CANCELLED = "cancelled", "Cancelada"
+
+
+class SettlementStatus(models.TextChoices):
+    DRAFT = "draft", "Borrador"
+    SUBMITTED = "submitted", "Presentada"
+    REVIEWED = "reviewed", "Revisada"
+    ACCEPTED = "accepted", "Aceptada"
+    REJECTED = "rejected", "Rechazada"
+
+
+class OperationsAuditEvent(models.TextChoices):
+    PROFILE_CREATED = "profile_created", "Perfil creado"
+    ASSIGNMENT_CREATED = "assignment_created", "Cartera asignada"
+    ASSIGNMENT_REASSIGNED = "assignment_reassigned", "Cartera reasignada"
+    ASSIGNMENT_ENDED = "assignment_ended", "Asignación finalizada"
+    ROUTE_CREATED = "route_created", "Ruta creada"
+    ROUTE_UPDATED = "route_updated", "Ruta actualizada"
+    SESSION_STARTED = "session_started", "Jornada iniciada"
+    SESSION_CLOSED = "session_closed", "Jornada cerrada"
+    SETTLEMENT_SUBMITTED = "settlement_submitted", "Liquidación presentada"
+    SETTLEMENT_REVIEWED = "settlement_reviewed", "Liquidación revisada"
+    SETTLEMENT_ACCEPTED = "settlement_accepted", "Liquidación aceptada"
+    SETTLEMENT_REJECTED = "settlement_rejected", "Liquidación rechazada"
+    SETTLED_PAYMENT_VOIDED = "settled_payment_voided", "Pago liquidado anulado"

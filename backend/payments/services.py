@@ -8,6 +8,7 @@ from django.db.models import F, Sum
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
+from accounts.models import RoleCode
 from contracts.choices import ContractActivityAction, ContractStatus, IdempotencyOperation
 from contracts.exceptions import ConflictError
 from contracts.models import Contract, ContractIdempotencyKey
@@ -292,6 +293,22 @@ def register_payment(contract, user, payload, idempotency_key, *, can_backdate=F
     if method in REFERENCE_METHODS and not reference:
         raise ValidationError({"reference": "La referencia es obligatoria para este método de pago."})
 
+    collector_session = None
+    if getattr(getattr(user, "role", None), "code", None) == RoleCode.COLLECTOR:
+        from collection_management.choices import AssignmentStatus, WorkSessionStatus
+        from collection_management.models import CollectionAssignment, CollectorWorkSession
+
+        collector_session = CollectorWorkSession.objects.select_for_update().filter(
+            collector=user, organization=contract.organization, branch=contract.branch,
+            status=WorkSessionStatus.OPEN,
+        ).first()
+        if not collector_session:
+            raise ValidationError({"work_session": "No tienes una jornada abierta."})
+        if not CollectionAssignment.objects.filter(
+            contract=contract, collector=user, status=AssignmentStatus.ACTIVE,
+        ).exists():
+            raise ValidationError({"contract": "No puedes cobrar un contrato que no está asignado a tu cartera."})
+
     preview = preview_allocation(contract, payload["amount"], payload["payment_type"])
     payment = Payment.objects.create(
         organization=contract.organization, branch=contract.branch, contract=contract,
@@ -300,6 +317,7 @@ def register_payment(contract, user, payload, idempotency_key, *, can_backdate=F
         reference=reference, payment_type=payload["payment_type"], notes=(payload.get("notes") or "").strip(),
         received_by=user, created_by=user, idempotency_key=idempotency_key,
         initial_amount_applied=preview.initial_amount, direct_amount_applied=preview.direct_amount,
+        collector_session=collector_session,
     )
     _apply_lines(payment, preview.applications)
     receipt = _receipt_snapshot(payment, preview)
@@ -409,4 +427,18 @@ def void_payment(payment, user, reason):
         payment.contract, user, ContractActivityAction.PAYMENT_VOIDED,
         f"Se anuló {payment.payment_number}. Motivo: {reason[:150]}",
     )
+    settlement_item = getattr(payment, "collector_settlement_item", None)
+    if settlement_item:
+        from collection_management.choices import OperationsAuditEvent
+        from collection_management.models import CollectionOperationsAudit
+
+        CollectionOperationsAudit.objects.create(
+            organization=payment.organization, actor=user,
+            event=OperationsAuditEvent.SETTLED_PAYMENT_VOIDED,
+            description=(
+                f"{payment.payment_number} fue anulado después de incluirse en "
+                f"{settlement_item.settlement.settlement_number}. Motivo: {reason[:300]}"
+            ),
+            settlement=settlement_item.settlement, payment=payment,
+        )
     return payment

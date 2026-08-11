@@ -37,6 +37,21 @@ export interface CollectionModulePermissions {
   resolve_promise: boolean;
   export_portfolio: boolean;
   global_access: boolean;
+  manage_collectors: boolean;
+  assign_portfolio: boolean;
+  reassign_portfolio: boolean;
+  manage_zones: boolean;
+  manage_routes: boolean;
+  view_own_portfolio: boolean;
+  view_collector_metrics: boolean;
+  start_work_session: boolean;
+  close_work_session: boolean;
+  submit_settlement: boolean;
+  review_settlement: boolean;
+  accept_settlement: boolean;
+  reject_settlement: boolean;
+  view_settlement: boolean;
+  export_collections: boolean;
 }
 
 export interface PaymentModulePermissions {

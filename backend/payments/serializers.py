@@ -96,6 +96,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "payment_method", "payment_method_label", "reference", "payment_type", "payment_type_label",
             "status", "status_label", "notes", "received_by", "created_by", "idempotency_key",
             "initial_amount_applied", "direct_amount_applied", "voided_at", "voided_by", "void_reason",
+            "collector_session",
             "receipt", "applications", "financial_summary", "created_at", "updated_at",
         )
 

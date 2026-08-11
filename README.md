@@ -14,6 +14,7 @@ Memora/
 │   ├── contracts/           Contratos, ventas, snapshots, auditoría y PDF
 │   ├── installments/        Cuotas, calendarios, reprogramación y plan de pagos
 │   ├── payments/            Pagos, aplicaciones, recibos, anulación y PDF
+│   ├── collection_management/ Cartera, cobradores, rutas, jornadas y liquidaciones
 │   ├── core/                Modelos base, respuestas y errores comunes
 │   └── memora/              Configuración y rutas del proyecto
 └── frontend/                React + TypeScript + Vite
@@ -308,6 +309,32 @@ Las respuestas de error mantienen esta estructura:
   "errors": {}
 }
 ```
+
+### Sprint 7: cobradores, rutas y liquidación diaria
+
+Sprint 7 amplía el motor de cartera existente sin crear saldos ni pagos paralelos. Una asignación activa vincula cada contrato con un único cobrador; las reasignaciones cierran el registro anterior y conservan la cadena histórica. Las zonas agrupan clientes por sucursal y las rutas ordenan paradas reutilizando clientes y gestiones de cobranza reales.
+
+El espacio responsive `/mi-jornada` permite al cobrador iniciar una jornada única, consultar su cartera y ruta del día, registrar visitas y entrar al flujo seguro de pagos. Un pago creado por un cobrador exige jornada abierta y asignación activa, y queda enlazado a esa jornada. Administradores y cajeros conservan su flujo normal del Sprint 5.
+
+Al cerrar la jornada, Memora congela un resumen calculado exclusivamente con pagos confirmados asociados: `total cobrado = efectivo + transferencias + tarjetas + cheques + otros`, `efectivo esperado = pagos en efectivo` y `diferencia = efectivo reportado − efectivo esperado`. Una diferencia exige observación; revisión, aceptación y rechazo conservan actor, fecha y auditoría. La anulación posterior de un pago no reescribe el snapshot liquidado y deja un evento explícito.
+
+| Recurso | Operaciones principales |
+| --- | --- |
+| `/api/collectors/` | Perfiles, disponibilidad, cartera individual y métricas de productividad. |
+| `/api/collection-assignments/` | Asignación individual, masiva atómica, consulta histórica y reasignación. |
+| `/api/collection-zones/` | Zonas por sucursal y asociación de clientes. |
+| `/api/collection-routes/` | Rutas, paradas, ordenamiento e inactivación. |
+| `/api/collector/portfolio/`, `/today/`, `/metrics/`, `/routes/` | Espacio operativo limitado al cobrador autenticado. |
+| `/api/collector-work-sessions/` | Inicio, jornada vigente, cierre y resumen diario. |
+| `/api/collector-settlements/` | Vista previa, envío idempotente, revisión, aceptación o rechazo. |
+| `/api/collectors/productivity/export.xlsx` | Productividad de cobradores en Excel real. |
+| `/api/collectors/{id}/portfolio/export.xlsx` | Cartera individual en Excel real. |
+| `/api/collector-settlements/export.xlsx` | Historial de liquidaciones en Excel real. |
+| `/api/collector-settlements/{id}/pdf/` | Comprobante de liquidación con snapshot y firmas. |
+
+Administradores y gerentes gestionan cobradores, asignaciones, zonas, rutas y decisiones de liquidación dentro de su organización. Contabilidad consulta métricas, liquidaciones y exportaciones. Caja consulta liquidaciones. Cada cobrador solo opera su propia cartera, ruta, jornada y liquidación; el backend vuelve a validar organización, sucursal, propietario y permiso en cada acción.
+
+La consola administrativa responsive está en `/operacion-cobranza`. Los orígenes locales `http://localhost:5173` y `http://127.0.0.1:5173` están habilitados por defecto para desarrollo; en otros entornos se deben declarar explícitamente mediante `CORS_ALLOWED_ORIGINS`.
 
 ## Validación
 

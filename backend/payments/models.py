@@ -54,6 +54,10 @@ class Payment(TimeStampedModel):
         blank=True, null=True,
     )
     void_reason = models.TextField(blank=True)
+    collector_session = models.ForeignKey(
+        "collection_management.CollectorWorkSession", on_delete=models.PROTECT,
+        related_name="payments", blank=True, null=True,
+    )
 
     class Meta:
         ordering = ("-payment_date", "-created_at", "-id")
@@ -86,6 +90,7 @@ class Payment(TimeStampedModel):
             models.Index(fields=("customer", "payment_date"), name="pay_customer_date_idx"),
             models.Index(fields=("payment_method",), name="pay_method_idx"),
             models.Index(fields=("received_by", "payment_date"), name="pay_receiver_date_idx"),
+            models.Index(fields=("collector_session", "status"), name="pay_collector_session_idx"),
             models.Index(fields=("idempotency_key",), name="pay_idempotency_idx"),
         ]
 

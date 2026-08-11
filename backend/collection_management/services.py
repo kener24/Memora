@@ -10,6 +10,7 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
+from accounts.models import RoleCode
 from contracts.access import scope_contracts
 from contracts.choices import ContractStatus
 from contracts.exceptions import ConflictError
@@ -23,7 +24,7 @@ from payments.services import money
 
 from .access import scope_actions, scope_promises
 from .choices import (
-    AGING_BUCKETS, DUE_SOON_DAYS, PROMISE_PAYMENT_GRACE_DAYS, RECENT_PAYMENT_DAYS,
+    AGING_BUCKETS, DUE_SOON_DAYS, PROMISE_PAYMENT_GRACE_DAYS, RECENT_PAYMENT_DAYS, AssignmentStatus,
     SEVERE_OVERDUE_DAYS, AuditEvent, CollectionActionStatus, CollectionOutcome,
     CollectionPriority, CollectionStatus, PromiseStatus,
 )
@@ -104,6 +105,10 @@ def portfolio_queryset(user, *, include_paid=False, today=None):
     )
     if not include_paid:
         queryset = queryset.filter(balance_calc__gt=0)
+    if getattr(getattr(user, "role", None), "code", None) == RoleCode.COLLECTOR:
+        queryset = queryset.filter(
+            collection_assignments__collector=user, collection_assignments__status=AssignmentStatus.ACTIVE,
+        )
     return queryset
 
 
@@ -128,6 +133,19 @@ def apply_portfolio_filters(queryset, params, *, today=None):
     for parameter, lookup in (("branch", "branch_id"), ("seller", "seller_id"), ("plan", "plan_id")):
         if params.get(parameter):
             queryset = queryset.filter(**{lookup: params[parameter]})
+    if params.get("collector"):
+        queryset = queryset.filter(
+            collection_assignments__collector_id=params["collector"],
+            collection_assignments__status=AssignmentStatus.ACTIVE,
+        )
+    if params.get("assignment") == "unassigned":
+        queryset = queryset.exclude(collection_assignments__status=AssignmentStatus.ACTIVE)
+    elif params.get("assignment") == "assigned":
+        queryset = queryset.filter(collection_assignments__status=AssignmentStatus.ACTIVE)
+    if params.get("zone") == "none":
+        queryset = queryset.filter(customer__collection_zone_link__isnull=True)
+    elif params.get("zone"):
+        queryset = queryset.filter(customer__collection_zone_link__zone_id=params["zone"])
     try:
         if params.get("balance_min"):
             queryset = queryset.filter(balance_calc__gte=money(params["balance_min"]))

@@ -12,7 +12,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from accounts.models import CustomUser
+from accounts.models import CustomUser, RoleCode
 from contracts.access import scope_contracts
 from contracts.exceptions import ConflictError
 from contracts.models import Contract
@@ -38,11 +38,16 @@ def payment_queryset():
     return Payment.objects.select_related(
         "organization", "branch", "contract", "customer", "received_by", "created_by", "voided_by",
         "receipt",
+        "collector_session",
     ).prefetch_related("applications__installment__schedule")
 
 
 def scoped_contract(user, contract_id):
     queryset = Contract.objects.select_related("organization", "branch", "customer")
+    if getattr(getattr(user, "role", None), "code", None) == RoleCode.COLLECTOR:
+        queryset = queryset.filter(
+            collection_assignments__collector=user, collection_assignments__status="active",
+        )
     return get_object_or_404(scope_contracts(queryset, user), pk=contract_id)
 
 
@@ -130,13 +135,16 @@ class PaymentViewSet(
         submitted = serializer.validated_data.get("contract")
         if not submitted:
             raise ValidationError({"contract": "Selecciona el contrato que recibirá el pago."})
-        contract = scoped_contract(request.user, submitted.pk)
         permissions = get_payment_permissions(request.user)
         payment_type = serializer.validated_data["payment_type"]
         if payment_type == PaymentType.INITIAL_PAYMENT and not permissions.register_initial_payment:
             raise PermissionDenied("No tienes permiso para registrar pagos de prima.")
         if payment_type == PaymentType.SETTLEMENT and not permissions.settle_contract:
             raise PermissionDenied("No tienes permiso para liquidar contratos.")
+        requested_date = serializer.validated_data.get("payment_date")
+        if requested_date and timezone.localtime(requested_date).date() < timezone.localdate() and not permissions.backdate_payment:
+            raise ValidationError({"payment_date": "No tienes permiso para registrar pagos retroactivos."})
+        contract = scoped_contract(request.user, submitted.pk)
         payload = dict(serializer.validated_data)
         payload.pop("contract", None)
         payment, created = register_payment(

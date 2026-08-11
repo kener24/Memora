@@ -185,6 +185,13 @@ class PaymentFlowTests(ContractAPITestCase):
 
     def test_permissions_collector_and_cashier_collect_seller_cannot_and_admin_voids(self):
         contract = self.active_contract()
+        self.authenticate(self.admin_a)
+        self.client.post("/api/collection-assignments/", {
+            "contract": contract.pk, "collector": self.collector_a.pk,
+            "reason": "Asignación para prueba de cobro",
+        }, format="json")
+        self.authenticate(self.collector_a)
+        self.client.post("/api/collector-work-sessions/start/", {}, format="json")
         collected = self.pay(contract, "100.00", user=self.collector_a, key="collector-payment-key")
         cashier = self.pay(contract, "100.00", user=self.cashier_a, key="cashier-payment-key")
         seller = self.pay(contract, "100.00", user=self.seller_a, key="seller-payment-key")

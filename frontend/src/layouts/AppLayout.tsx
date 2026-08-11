@@ -1,4 +1,4 @@
-import { CalendarClock, ChevronDown, FileSignature, HandCoins, Home, Layers3, LogOut, Menu, PanelLeftClose, ReceiptText, Users, X } from "lucide-react";
+import { CalendarClock, ChevronDown, FileSignature, HandCoins, Home, Layers3, LogOut, Menu, PanelLeftClose, ReceiptText, Route, UserRoundCheck, Users, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -33,7 +33,7 @@ export function AppLayout() {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
-  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : location.pathname.startsWith("/planes") ? "Planes" : location.pathname.startsWith("/contratos") ? "Contratos" : location.pathname.startsWith("/cuotas") ? "Cuotas" : location.pathname.startsWith("/pagos") ? "Pagos" : location.pathname.startsWith("/cartera") ? "Cartera" : "Inicio";
+  const pageTitle = location.pathname.startsWith("/clientes") ? "Clientes" : location.pathname.startsWith("/planes") ? "Planes" : location.pathname.startsWith("/contratos") ? "Contratos" : location.pathname.startsWith("/cuotas") ? "Cuotas" : location.pathname.startsWith("/pagos") ? "Pagos" : location.pathname.startsWith("/operacion-cobranza") ? "Operación de cobranza" : location.pathname.startsWith("/mi-jornada") ? "Mi jornada" : location.pathname.startsWith("/cartera") ? "Cartera" : "Inicio";
 
   function handleSignOut() {
     setProfileOpen(false);
@@ -99,6 +99,18 @@ export function AppLayout() {
               <span>Cartera</span>
             </NavLink>
           )}
+          {user?.permisos.cobranza.view_collector_metrics && !user?.permisos.cobranza.view_own_portfolio && (
+            <NavLink to="/operacion-cobranza" className={({ isActive }) => `nav-item ${isActive ? "nav-item--active" : ""}`}>
+              <Route size={19} strokeWidth={1.8} />
+              <span>Operación de cobro</span>
+            </NavLink>
+          )}
+          {user?.permisos.cobranza.view_own_portfolio && (
+            <NavLink to="/mi-jornada" className={({ isActive }) => `nav-item ${isActive ? "nav-item--active" : ""}`}>
+              <UserRoundCheck size={19} strokeWidth={1.8} />
+              <span>Mi jornada</span>
+            </NavLink>
+          )}
         </nav>
 
         <div className="sidebar__footer">
@@ -113,7 +125,7 @@ export function AppLayout() {
           </div>
           <div className="sidebar__foundation">
             <PanelLeftClose size={16} aria-hidden="true" />
-            <span>Cartera y cobranza · Sprint 6</span>
+            <span>Operación de campo · Sprint 7</span>
           </div>
         </div>
       </aside>
